@@ -64,43 +64,45 @@
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #fff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 2px;
+            line-height: 1.3;
         }
 
         .logo i {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--primary);
         }
 
-        .logo span:first-of-type {
+        .logo .subtitle {
             font-weight: 300;
-            opacity: 0.85;
-            font-size: 12px;
+            opacity: 0.9;
+            font-size: 11px;
             font-family: 'Lato', sans-serif;
         }
 
-        .logo span:last-child {
+        .logo .title {
             color: var(--primary);
+            font-size: 14px;
         }
 
         .menu-btn {
             background: var(--glass);
             border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
             backdrop-filter: blur(5px);
             transition: all 0.3s;
         }
@@ -121,29 +123,52 @@
         /* --- Map Controls --- */
         .map-controls {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            right: 10px;
+            bottom: 280px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-end;
             gap: 8px;
             z-index: 900;
+            max-width: 200px;
         }
 
         .control-btn {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.95);
             border: none;
             cursor: pointer;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
             color: #1e3c72;
             transition: all 0.3s;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .control-btn::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -18px;
+            font-size: 8px;
+            color: #fff;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .control-btn:hover::after {
+            opacity: 1;
         }
 
         .control-btn:hover {
@@ -162,11 +187,11 @@
             background: var(--bg-dark);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 8px 12px;
+            padding: 10px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             box-shadow: 0 -3px 15px rgba(0,0,0,0.3);
         }
 
@@ -180,9 +205,9 @@
 
         .progress-track {
             flex: 1;
-            height: 6px;
+            height: 8px;
             background: rgba(255,255,255,0.2);
-            border-radius: 3px;
+            border-radius: 4px;
             position: relative;
             cursor: pointer;
             touch-action: none;
@@ -192,7 +217,7 @@
             height: 100%;
             background: var(--primary);
             width: 0%;
-            border-radius: 3px;
+            border-radius: 4px;
             transition: width 0.1s linear;
             position: relative;
         }
@@ -200,14 +225,14 @@
         .progress-fill::after {
             content: '';
             position: absolute;
-            right: -7px;
+            right: -8px;
             top: 50%;
             transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             cursor: grab;
         }
 
@@ -216,9 +241,9 @@
         }
 
         .time-info {
-            font-size: 10px;
+            font-size: 11px;
             color: rgba(255,255,255,0.8);
-            min-width: 60px;
+            min-width: 70px;
             text-align: right;
             white-space: nowrap;
         }
@@ -226,88 +251,109 @@
         /* Info Grid */
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr) auto;
-            gap: 8px;
-            align-items: center;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        .info-item {
+        .info-row {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            min-width: 0;
+            gap: 3px;
         }
 
         .info-label {
-            font-size: 8px;
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: rgba(255,255,255,0.6);
         }
 
         .info-value {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .weather-badge {
+        .weather-info {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             background: rgba(255,255,255,0.1);
-            padding: 3px 6px;
-            border-radius: 12px;
-            font-size: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            grid-column: 1 / -1;
         }
 
-        .weather-badge span:first-child {
-            font-size: 12px;
+        .weather-icon {
+            font-size: 24px;
+        }
+
+        .weather-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .weather-temp {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .weather-desc {
+            font-size: 10px;
+            opacity: 0.8;
         }
 
         /* Speed Section */
         .speed-section {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(0,0,0,0.2);
-            padding: 6px 8px;
-            border-radius: 8px;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .speed-icon {
+            color: var(--primary);
+            font-size: 20px;
         }
 
         .speed-display {
-            font-size: 14px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--primary);
             font-family: 'Playfair Display', serif;
-            min-width: 55px;
+            min-width: 70px;
+        }
+
+        .speed-unit {
+            font-size: 12px;
+            opacity: 0.7;
         }
 
         input[type="range"] {
             flex: 1;
-            height: 4px;
+            height: 6px;
             background: rgba(255,255,255,0.2);
-            border-radius: 2px;
+            border-radius: 3px;
             outline: none;
             -webkit-appearance: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--primary);
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .play-btn {
-            width: 32px;
-            height: 32px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--primary);
             border: none;
@@ -316,9 +362,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 20px;
             transition: all 0.3s;
             flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
         }
 
         .play-btn.playing {
@@ -386,11 +433,11 @@
 
         .btn-main {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -407,7 +454,7 @@
 
         select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             background: rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
@@ -424,7 +471,7 @@
 
         .trip-card {
             background: rgba(0,0,0,0.3);
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
@@ -453,12 +500,12 @@
         /* Scenery Overlay */
         .scenery-overlay {
             position: absolute;
-            bottom: 180px;
+            bottom: 290px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px);
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 25px;
             font-family: 'Playfair Display', serif;
             font-size: 14px;
@@ -484,50 +531,44 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
         }
 
-        /* Responsive */
+        /* Desktop */
+        @media (min-width: 769px) {
+            .map-controls {
+                right: 20px;
+                top: 50%;
+                bottom: auto;
+                transform: translateY(-50%);
+                flex-direction: column;
+                max-width: none;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .control-btn::after {
+                left: 60px;
+                bottom: 50%;
+                transform: translateY(50%);
+            }
+        }
+
+        /* Responsive Mobile */
         @media (max-width: 768px) {
             .sidebar { width: 100%; right: -100%; }
-            .map-controls { 
-                right: 10px; 
-                top: auto; 
-                bottom: 200px; 
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: flex-end;
-                gap: 6px;
-            }
-            .control-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-            .scenery-overlay { bottom: 210px; font-size: 12px; padding: 6px 15px; }
-            .logo { font-size: 12px; }
-            .logo span:first-of-type { display: none; }
+            .logo { font-size: 11px; }
+            .logo .subtitle { font-size: 10px; }
+            .logo .title { font-size: 12px; }
+            .scenery-overlay { bottom: 300px; font-size: 12px; padding: 8px 20px; }
         }
 
         @media (max-width: 480px) {
-            .info-grid { 
-                grid-template-columns: repeat(2, 1fr);
-                gap: 6px;
-            }
-            .info-item:nth-child(5) {
-                grid-column: 1 / -1;
-                justify-content: center;
-                margin-top: 4px;
-            }
-            .info-label { font-size: 7px; }
-            .info-value { font-size: 10px; }
-            .speed-display { font-size: 13px; min-width: 50px; }
-            .weather-badge { font-size: 9px; }
-            .bottom-bar { padding: 6px 10px; }
-            .progress-track { height: 5px; }
-        }
-
-        @media (max-width: 360px) {
-            .info-grid { grid-template-columns: 1fr 1fr; }
-            .speed-section { gap: 6px; padding: 5px; }
-            .speed-display { font-size: 12px; min-width: 45px; }
+            .info-value { font-size: 12px; }
+            .speed-display { font-size: 18px; min-width: 60px; }
+            .play-btn { width: 45px; height: 45px; font-size: 18px; }
+            .weather-icon { font-size: 20px; }
+            .weather-temp { font-size: 14px; }
         }
     </style>
 </head>
@@ -540,9 +581,10 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo">
-                <i class="fas fa-arrow-left"></i>
-                <span>Clique no menu para definir a rota</span>
-                <span>Faça Turismo às custas de Thaisa</span>
+                <div class="subtitle">
+                    <i class="fas fa-arrow-left"></i> Clique no menu para definir a rota
+                </div>
+                <div class="title">Faça Turismo às custas de Thaisa</div>
             </div>
         </div>
         <div style="font-size: 10px; opacity: 0.8;" id="dateDisplay"></div>
@@ -553,11 +595,11 @@
 
     <!-- Map Controls -->
     <div class="map-controls">
-        <button class="control-btn" onclick="changeZoom('in')" title="Aproximar"><i class="fas fa-plus"></i></button>
-        <button class="control-btn" onclick="changeZoom('out')" title="Afastar"><i class="fas fa-minus"></i></button>
-        <button class="control-btn" onclick="resetView()" title="Visão Global"><i class="fas fa-globe"></i></button>
+        <button class="control-btn" onclick="changeZoom('in')" title="Aumentar zoom"><i class="fas fa-plus"></i></button>
+        <button class="control-btn" onclick="changeZoom('out')" title="Diminuir zoom"><i class="fas fa-minus"></i></button>
+        <button class="control-btn" onclick="resetView()" title="Ver rota completa"><i class="fas fa-globe"></i></button>
         <button class="control-btn" onclick="toggleSatellite()" title="Satélite" id="btnSatellite"><i class="fas fa-satellite"></i></button>
-        <button class="control-btn" onclick="toggleCabin()" title="Vista Cabine" id="btnCabin"><i class="fas fa-train"></i></button>
+        <button class="control-btn" onclick="toggleCabin()" title="Vista da cabine" id="btnCabin"><i class="fas fa-train"></i></button>
     </div>
 
     <!-- Scenery Overlay -->
@@ -575,39 +617,43 @@
             <div class="progress-track" id="progressBarBg">
                 <div class="progress-fill" id="progressBarFill"></div>
             </div>
-            <div class="time-info" id="timeRemaining">--:--</div>
+            <div class="time-info" id="timeRemaining">77h 24min</div>
         </div>
 
         <!-- Info Grid -->
         <div class="info-grid">
-            <div class="info-item">
+            <div class="info-row">
                 <span class="info-label">Origem</span>
                 <span class="info-value" id="bottomOrigin">Moscou</span>
             </div>
-            <div class="info-item">
+            <div class="info-row">
                 <span class="info-label">Destino</span>
                 <span class="info-value" id="bottomDest">Vladivostok</span>
             </div>
-            <div class="info-item">
+            <div class="info-row">
                 <span class="info-label">Distância</span>
                 <span class="info-value" id="bottomDist">9.289 km</span>
             </div>
-            <div class="info-item">
+            <div class="info-row">
                 <span class="info-label">Tempo Est.</span>
                 <span class="info-value" id="bottomTime">7 dias</span>
             </div>
-            <div class="info-item">
-                <div class="weather-badge">
-                    <span id="bottomWeatherIcon">❄️</span>
-                    <span id="bottomTemp">-15°C</span>
+            <div class="weather-info">
+                <span class="weather-icon" id="bottomWeatherIcon">❄️</span>
+                <div class="weather-text">
+                    <span class="weather-temp" id="bottomTemp">-15°C</span>
+                    <span class="weather-desc" id="bottomWeatherText">Neve</span>
                 </div>
             </div>
         </div>
 
         <!-- Speed Section -->
         <div class="speed-section">
-            <i class="fas fa-tachometer-alt" style="color:var(--primary); font-size:12px;"></i>
-            <div class="speed-display"><span id="speedValue">120</span></div>
+            <i class="fas fa-tachometer-alt speed-icon"></i>
+            <div class="speed-display">
+                <span id="speedValue">120</span>
+                <span class="speed-unit">km/h</span>
+            </div>
             <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
             <button class="play-btn" id="playPauseBtn" onclick="togglePlay()">
                 <i class="fas fa-play"></i>
@@ -648,7 +694,7 @@
         <div class="control-group">
             <div class="group-title"><i class="fas fa-cog"></i> Modo de Viagem</div>
             <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()">
-                <i class="fas fa-infinity"></i> Contínuo
+                <i class="fas fa-infinity"></i> Modo Contínuo (Loop)
             </button>
         </div>
 
@@ -802,12 +848,10 @@
             const progressBar = document.getElementById('progressBarBg');
             const progressFill = document.getElementById('progressBarFill');
             
-            // Mouse events
             progressBar.addEventListener('mousedown', startDrag);
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', endDrag);
             
-            // Touch events
             progressBar.addEventListener('touchstart', startDrag, {passive: false});
             document.addEventListener('touchmove', drag, {passive: false});
             document.addEventListener('touchend', endDrag);
@@ -856,6 +900,7 @@
             document.getElementById('bottomDist').textContent = currentRoute.distance.toLocaleString('pt-BR') + ' km';
             document.getElementById('bottomTime').textContent = currentRoute.duration;
             document.getElementById('bottomWeatherIcon').textContent = currentRoute.weather.icon;
+            document.getElementById('bottomWeatherText').textContent = currentRoute.weather.text;
             document.getElementById('bottomTemp').textContent = currentRoute.weather.temp;
 
             if (routeLine) map.removeLayer(routeLine);
@@ -870,12 +915,11 @@
                 radius: 10, fillColor: '#ffd700', color: '#fff', weight: 3, fillOpacity: 1
             }).addTo(map);
 
-            // Adicionar marcadores de cidades
             if (currentRoute.cities) {
                 currentRoute.coordinates.forEach((coord, index) => {
                     if (currentRoute.cities[index]) {
                         const marker = L.circleMarker(coord, {
-                            radius: 5,
+                            radius: 6,
                             fillColor: '#fff',
                             color: '#ffd700',
                             weight: 2,
