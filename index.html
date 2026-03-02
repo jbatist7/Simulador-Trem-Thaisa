@@ -33,27 +33,18 @@
         /* --- Header --- */
         .header {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+            top: 0; left: 0; width: 100%;
             padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 1000;
             background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
             pointer-events: none;
         }
         .header-content { pointer-events: auto; display: flex; align-items: center; gap: 10px; }
-        
         .logo {
-            font-family: 'Playfair Display', serif; 
-            font-size: 16px; /* Tamanho reduzido para acomodar o texto */
-            font-weight: 700; 
-            color: #fff; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            line-height: 1.2;
-            text-align: left;
+            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; 
+            color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            line-height: 1.2; text-align: left;
         }
         .logo span { color: var(--primary); display: block; font-size: 0.9em; font-weight: 400; }
 
@@ -78,9 +69,10 @@
             flex-direction: column;
             gap: 12px;
             z-index: 900;
+            align-items: center;
         }
 
-        /* Botões pequenos padrão */
+        /* Botões padrão do mapa */
         .control-btn {
             width: 45px; height: 45px; border-radius: 50%;
             background: rgba(255, 255, 255, 0.95); border: none; cursor: pointer;
@@ -91,59 +83,97 @@
         .control-btn:hover { background: #fff; transform: scale(1.1); color: var(--primary); }
         .control-btn.active { background: var(--primary); color: #1e3c72; }
 
-        /* --- NOVO: Botão Play Grande na Lateral --- */
-        .btn-play-large {
-            width: 65px !important; /* Maior que os outros */
-            height: 65px !important;
-            background: var(--primary) !important; /* Dourado */
-            color: #1e3c72 !important;
-            font-size: 26px !important;
-            margin-top: 10px; /* Espaço extra acima */
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5) !important;
-            border: 2px solid #fff !important;
+        /* --- Mobile Vertical Speed Control (Escondido no Desktop) --- */
+        .mobile-speed-control {
+            display: none; /* Padrão oculto */
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 5px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .btn-play-large:hover { 
-            transform: scale(1.1) !important; 
-            background: #ffed4a !important;
+        .v-speed-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
-        .btn-play-large.playing {
-            background: #ff4757 !important; /* Vermelho quando tocando */
-            color: white !important;
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5) !important;
+        .v-speed-btn:active { background: var(--primary); color: #000; }
+        .v-speed-display {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px; font-weight: bold; color: var(--primary);
+            text-align: center; line-height: 1;
         }
 
-        /* --- Bottom Bar (Enxuta) --- */
+        /* --- Bottom Bar --- */
         .bottom-bar {
             background: var(--bg-dark);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px 15px 20px;
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: flex; flex-direction: column; gap: 10px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-            /* Altura controlada */
-            max-height: 28vh; 
-            overflow-y: auto;
         }
 
-        /* Progress Bar Compacta */
-        .progress-section {
-            width: 100%; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;
+        /* Progress Bar (Arrastável) */
+        .progress-container {
+            width: 100%; display: flex; align-items: center; gap: 10px;
         }
-        .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative;}
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; border-radius: 3px; position: relative;}
-        .progress-fill::after {
-            content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
-            width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        .time-info { font-size: 11px; color: rgba(255,255,255,0.8); min-width: 50px; text-align: center; white-space: nowrap; }
+        
+        /* Input Range Estilizado */
+        input[type=range].progress-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
         }
-        .time-info { font-size: 11px; color: rgba(255,255,255,0.8); min-width: 50px; text-align: center; }
+        input[type=range].progress-slider:focus { outline: none; }
+        
+        /* Trilha (Webkit) */
+        input[type=range].progress-slider::-webkit-slider-runnable-track {
+            width: 100%; height: 8px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            /* O preenchimento dourado é feito via JS (background-size) */
+            background-image: linear-gradient(var(--primary), var(--primary));
+            background-size: 0% 100%;
+            background-repeat: no-repeat;
+        }
+        /* Trilha (Firefox) */
+        input[type=range].progress-slider::-moz-range-track {
+            width: 100%; height: 8px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        /* Thumb (Bolinha - Webkit) */
+        input[type=range].progress-slider::-webkit-slider-thumb {
+            height: 20px; width: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px; /* Alinhar verticalmente */
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        /* Thumb (Firefox) */
+        input[type=range].progress-slider::-moz-range-thumb {
+            height: 20px; width: 20px;
+            border: none;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
 
-        /* Info Grid - Layout Compacto */
+        /* Info Grid */
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 colunas no notebook */
+            grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin-bottom: 5px;
         }
@@ -152,24 +182,27 @@
         .info-value { font-size: 12px; font-weight: 700; color: #fff; }
         .weather-badge { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 15px; display: flex; align-items: center; gap: 5px; font-size: 12px; }
 
-        /* Speed Control - Largura Total */
-        .speed-section {
-            display: flex; align-items: center; gap: 10px;
+        /* --- Desktop Bottom Controls (Slider + Play) --- */
+        .desktop-bottom-controls {
+            display: flex; align-items: center; gap: 15px;
+        }
+        .desktop-speed-wrapper {
+            flex: 1; display: flex; align-items: center; gap: 10px;
             background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 10px;
         }
-        .speed-display { 
+        .desktop-speed-display { 
             font-size: 18px; font-weight: 700; color: var(--primary); 
             font-family: 'Playfair Display', serif; min-width: 70px; text-align: center;
         }
-        input[type="range"] {
-            flex: 1; height: 6px; background: rgba(255,255,255,0.2);
-            border-radius: 3px; outline: none; -webkit-appearance: none;
+        .desktop-btn-play {
+            flex: 0 0 auto; padding: 10px 25px; border-radius: 8px;
+            background: var(--primary); color: #1e3c72; border: none;
+            font-weight: bold; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px;
-            border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -6px; /* Centralizar na track */
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
+        .desktop-btn-play:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .desktop-btn-play.playing { background: #ff4757; color: white; }
 
         /* --- Sidebar --- */
         .sidebar {
@@ -186,17 +219,56 @@
         .control-group { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; }
         .group-title { font-family: 'Playfair Display', serif; color: var(--primary); margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
         
-        .btn-main { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s; }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-        
         select { width: 100%; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; margin-bottom: 10px; }
         
-        .saved-trips-list { display: flex; flex-direction: column; gap: 8px; }
-        .trip-card { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary); }
-        .trip-info small { display: block; color: rgba(255,255,255,0.5); font-size: 10px; }
-        .trip-actions button { background: none; border: none; color: #fff; cursor: pointer; padding: 5px; margin-left: 5px; }
-        .btn-load { color: var(--primary); }
-        .btn-delete { color: #ff4757; }
+        /* --- Responsividade --- */
+        
+        /* Estilos Geral para Input Range de Velocidade (Desktop) */
+        input[type="range"].speed-slider {
+            flex: 1; height: 6px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; outline: none; -webkit-appearance: none;
+        }
+        input[type="range"].speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -6px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* --- CELULAR (< 600px) --- */
+        @media (max-width: 600px) {
+            .sidebar { width: 100%; right: -100%; }
+            .logo { font-size: 13px; max-width: 200px; }
+            
+            /* Esconder controles Desktop */
+            .desktop-bottom-controls { display: none !important; }
+            
+            /* Mostrar Controle Vertical Móvel */
+            .mobile-speed-control { display: flex; }
+            
+            /* Grid vira scroll horizontal */
+            .info-grid {
+                display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; gap: 15px;
+            }
+            .info-grid::-webkit-scrollbar { display: none; }
+            .info-item { min-width: 80px; align-items: flex-start; }
+
+            /* Botões do mapa ficam levemente menores e sobem um pouco para dar espaço ao controle vertical */
+            .map-controls { bottom: 30vh; top: auto; transform: none; gap: 8px; }
+            .control-btn { width: 40px; height: 40px; font-size: 16px; }
+
+            /* Ajuste do slider de progresso para dedo */
+            input[type=range].progress-slider::-webkit-slider-thumb { height: 24px; width: 24px; margin-top: -8px; }
+            input[type=range].progress-slider::-webkit-slider-runnable-track { height: 10px; }
+        }
+
+        /* --- NOTEBOOK (> 600px) --- */
+        @media (min-width: 601px) {
+            /* No desktop, escondemos o controle vertical da coluna */
+            .mobile-speed-control { display: none !important; }
+            
+            /* Mostramos os controles na barra de baixo */
+            .desktop-bottom-controls { display: flex !important; }
+        }
 
         /* Scenery Overlay */
         .scenery-overlay {
@@ -207,46 +279,6 @@
             pointer-events: none; text-align: center; border: 1px solid rgba(255,255,255,0.2);
         }
         .scenery-overlay.show { opacity: 1; }
-
-        /* --- RESPONSIVIDADE CELULAR --- */
-        @media (max-width: 600px) {
-            .sidebar { width: 100%; right: -100%; }
-            
-            /* Header Text */
-            .logo { font-size: 13px; max-width: 200px; }
-            
-            /* Info Grid vira lista horizontal no celular para economizar altura */
-            .info-grid {
-                display: flex;
-                overflow-x: auto;
-                white-space: nowrap;
-                padding-bottom: 5px;
-                gap: 15px;
-            }
-            .info-grid::-webkit-scrollbar { display: none; }
-            .info-item { min-width: 80px; align-items: flex-start; }
-
-            /* Map Controls no Celular */
-            .map-controls {
-                right: 10px;
-                top: auto;
-                bottom: 32vh; /* Posiciona acima da barra inferior */
-                transform: none;
-                gap: 8px;
-            }
-            .scenery-overlay { bottom: 33vh; width: 80%; font-size: 12px; }
-
-            /* Botões de controle ficam menores no mobile */
-            .control-btn { width: 40px; height: 40px; font-size: 16px; }
-            
-            /* Botão Play grande ajustado para mobile */
-            .btn-play-large {
-                width: 55px !important;
-                height: 55px !important;
-                font-size: 22px !important;
-                margin-top: 5px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -261,7 +293,6 @@
                 <span>- Viaje com Thaisa</span>
             </div>
         </div>
-        <div style="font-size: 11px; opacity: 0.8; display: none;" id="dateDisplay"></div> <!-- Escondido para limpar -->
     </header>
 
     <!-- Map -->
@@ -275,10 +306,19 @@
         <button class="control-btn" onclick="toggleSatellite()" title="Satélite" id="btnSatellite"><i class="fas fa-satellite"></i></button>
         <button class="control-btn" onclick="toggleCabin()" title="Vista Cabine" id="btnCabin"><i class="fas fa-train"></i></button>
         
-        <!-- BOTÃO PLAY MOVIDO PARA AQUI -->
-        <button class="control-btn btn-play-large" id="playPauseBtn" onclick="togglePlay()" title="Iniciar/Pausar Viagem">
-            <i class="fas fa-play"></i>
+        <!-- Botão Play Mobile (Só aparece no mobile via CSS se necessário, mas aqui deixaremos visível em ambos para ser o 'principal' da coluna) -->
+        <!-- Nota: O usuário pediu Play na barra de velocidade no Notebook. Aqui é o botão da coluna lateral. -->
+        <!-- Vamos manter este botão visível no Mobile, mas no Notebook o foco será o da barra inferior. -->
+        <button class="control-btn mobile-play-btn" onclick="togglePlay()" title="Iniciar/Pausar" style="display: none;"> <!-- Oculto via JS/CSS dependendo da lógica preferida, mas vamos usar o da barra inferior para notebook -->
+             <i class="fas fa-play"></i>
         </button>
+
+        <!-- CONTROLE VERTICAL DE VELOCIDADE (MOBILE) -->
+        <div class="mobile-speed-control">
+            <button class="v-speed-btn" onclick="adjustSpeed(10)"><i class="fas fa-plus"></i></button>
+            <div class="v-speed-display" id="mobileSpeedValue">120</div>
+            <button class="v-speed-btn" onclick="adjustSpeed(-10)"><i class="fas fa-minus"></i></button>
+        </div>
     </div>
 
     <!-- Scenery Overlay -->
@@ -287,35 +327,21 @@
         <span id="sceneryText">Atravessando os Montes Urais</span>
     </div>
 
-    <!-- Bottom Bar (Enxuta) -->
+    <!-- Bottom Bar -->
     <div class="bottom-bar">
-        <!-- Progress Section -->
-        <div class="progress-section">
+        <!-- Progress Section (Arrastável) -->
+        <div class="progress-container">
             <div class="time-info" id="progressPercent">0%</div>
-            <div class="progress-track" id="progressBarBg">
-                <div class="progress-fill" id="progressBarFill"></div>
-            </div>
+            <input type="range" class="progress-slider" id="progressBar" min="0" max="100" value="0" step="0.1">
             <div class="time-info" id="timeRemaining">--:--</div>
         </div>
 
-        <!-- Info Grid (Scroll no mobile, Grid no desktop) -->
+        <!-- Info Grid -->
         <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">Origem</span>
-                <span class="info-value" id="bottomOrigin">Moscou</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Destino</span>
-                <span class="info-value" id="bottomDest">Vladivostok</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Distância</span>
-                <span class="info-value" id="bottomDist">9.289 km</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Tempo</span>
-                <span class="info-value" id="bottomTime">7 dias</span>
-            </div>
+            <div class="info-item"><span class="info-label">Origem</span><span class="info-value" id="bottomOrigin">Moscou</span></div>
+            <div class="info-item"><span class="info-label">Destino</span><span class="info-value" id="bottomDest">Vladivostok</span></div>
+            <div class="info-item"><span class="info-label">Distância</span><span class="info-value" id="bottomDist">9.289 km</span></div>
+            <div class="info-item"><span class="info-label">Tempo</span><span class="info-value" id="bottomTime">7 dias</span></div>
             <div class="info-item">
                 <div class="weather-badge">
                     <span id="bottomWeatherIcon">❄️</span>
@@ -324,11 +350,16 @@
             </div>
         </div>
 
-        <!-- Speed Control Section (Largura Total) -->
-        <div class="speed-section">
-            <i class="fas fa-tachometer-alt" style="color:var(--primary)"></i>
-            <div class="speed-display"><span id="speedValue">120</span> <span style="font-size:12px">km/h</span></div>
-            <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
+        <!-- DESKTOP CONTROLS (Velocidade + Play) -->
+        <div class="desktop-bottom-controls">
+            <div class="desktop-speed-wrapper">
+                <i class="fas fa-tachometer-alt" style="color:var(--primary)"></i>
+                <div class="desktop-speed-display"><span id="desktopSpeedValue">120</span> <span style="font-size:12px">km/h</span></div>
+                <input type="range" class="speed-slider" id="speedSlider" min="40" max="800" value="120" step="10">
+            </div>
+            <button class="desktop-btn-play" id="desktopPlayBtn" onclick="togglePlay()">
+                <i class="fas fa-play"></i>
+            </button>
         </div>
     </div>
 
@@ -338,7 +369,6 @@
             <h2 style="font-family: 'Playfair Display';">Configurações</h2>
             <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
-
         <div class="control-group">
             <div class="group-title"><i class="fas fa-map-marked-alt"></i> Escolher Rota</div>
             <select id="routeSelect">
@@ -359,150 +389,88 @@
                 </optgroup>
             </select>
         </div>
-
         <div class="control-group">
             <div class="group-title"><i class="fas fa-cog"></i> Modo de Viagem</div>
             <div class="play-control">
-                <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()">
+                <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()" style="width:100%; padding:10px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px; cursor:pointer;">
                     <i class="fas fa-infinity"></i> Contínuo
                 </button>
             </div>
         </div>
-
         <div class="control-group">
             <div class="group-title"><i class="fas fa-save"></i> Minhas Viagens</div>
-            <button class="btn-main btn-secondary" style="width:100%; margin-bottom:10px;" onclick="saveTrip()">
+            <button class="btn-main btn-secondary" style="width:100%; margin-bottom:10px; padding:10px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px; cursor:pointer;" onclick="saveTrip()">
                 <i class="fas fa-download"></i> Salvar Progresso
             </button>
-            <div class="saved-trips-list" id="savedTripsList">
-                <div style="text-align:center; opacity:0.5; font-size:11px;">Nenhuma viagem salva</div>
-            </div>
+            <div class="saved-trips-list" id="savedTripsList"></div>
         </div>
     </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // --- Database de Rotas (COORDENADAS MAIS REALISTAS) ---
+        // --- Database de Rotas (Mesmas coordenadas realistas) ---
         const routes = {
             'trans-siberian': {
                 name: 'Trans-Siberiana', origin: 'Moscou', destination: 'Vladivostok',
                 distance: 9289, duration: '7 dias',
-                // Rota aproximada passando por cidades reais
-                coordinates: [
-                    [55.7558, 37.6173], // Moscou
-                    [56.3267, 44.0066], // Nizhny Novgorod
-                    [55.8304, 49.0661], // Kazan
-                    [56.8389, 60.6057], // Yekaterinburg (Urais)
-                    [55.0084, 82.9357], // Novosibirsk
-                    [56.0153, 92.8932], // Krasnoyarsk
-                    [51.8335, 107.5845], // Ulan-Ude
-                    [43.1155, 131.8855]  // Vladivostok
-                ],
+                coordinates: [[55.7558, 37.6173], [56.3267, 44.0066], [55.8304, 49.0661], [56.8389, 60.6057], [55.0084, 82.9357], [56.0153, 92.8932], [51.8335, 107.5845], [43.1155, 131.8855]],
                 weather: { icon: '❄️', text: 'Neve', temp: '-15°C' },
-                scenery: [{ lat: 56.8, text: 'Montes Urais', icon: 'fa-mountain' }, { lat: 55.0, text: 'Sibéria', icon: 'fa-tree' }, { lat: 51.8, text: 'Lago Baikal (Distante)', icon: 'fa-water' }]
+                scenery: [{ lat: 56.8, text: 'Montes Urais', icon: 'fa-mountain' }, { lat: 55.0, text: 'Sibéria', icon: 'fa-tree' }]
             },
             'shinkansen': {
                 name: 'Shinkansen', origin: 'Tóquio', destination: 'Osaka',
                 distance: 515, duration: '2h 30min',
-                coordinates: [
-                    [35.6762, 139.6503], // Tóquio
-                    [35.6895, 139.6917], // Estação Tóquio
-                    [35.8617, 139.6455], // Omiya
-                    [35.1689, 136.8816], // Nagoya
-                    [34.9858, 135.7588], // Kyoto
-                    [34.6937, 135.5023]  // Osaka
-                ],
+                coordinates: [[35.6762, 139.6503], [35.6895, 139.6917], [35.8617, 139.6455], [35.1689, 136.8816], [34.9858, 135.7588], [34.6937, 135.5023]],
                 weather: { icon: '🌸', text: 'Primavera', temp: '18°C' },
-                scenery: [{ lat: 35.2, text: 'Monte Fuji ao fundo', icon: 'fa-mountain' }]
+                scenery: [{ lat: 35.2, text: 'Monte Fuji', icon: 'fa-mountain' }]
             },
             'orient-express': {
                 name: 'Orient Express', origin: 'Paris', destination: 'Istambul',
                 distance: 3000, duration: '3 dias',
-                coordinates: [
-                    [48.8566, 2.3522], // Paris
-                    [46.2044, 6.1432], // Genebra
-                    [47.3769, 8.5417], // Zurique
-                    [48.2082, 16.3738], // Viena
-                    [41.0082, 28.9784]  // Istambul
-                ],
+                coordinates: [[48.8566, 2.3522], [46.2044, 6.1432], [47.3769, 8.5417], [48.2082, 16.3738], [41.0082, 28.9784]],
                 weather: { icon: '🌤️', text: 'Nublado', temp: '12°C' },
                 scenery: [{ lat: 47.3, text: 'Alpes Suíços', icon: 'fa-mountain' }]
             },
             'glacier-express': {
                 name: 'Glacier Express', origin: 'Zermatt', destination: 'St. Moritz',
                 distance: 291, duration: '8 horas',
-                coordinates: [
-                    [46.0207, 7.7491], // Zermatt
-                    [46.4900, 8.0300], // Andermatt
-                    [46.6167, 8.3667], // Disentis
-                    [46.7900, 9.5800], // Thusis
-                    [46.4940, 9.8440], // Tiefencastel
-                    [46.6569, 9.8355]  // St. Moritz
-                ],
+                coordinates: [[46.0207, 7.7491], [46.4900, 8.0300], [46.6167, 8.3667], [46.7900, 9.5800], [46.4940, 9.8440], [46.6569, 9.8355]],
                 weather: { icon: '⛷️', text: 'Neve', temp: '-5°C' },
                 scenery: [{ lat: 46.6, text: 'Passo de Oberalp', icon: 'fa-mountain' }]
             },
             'california-zephyr': {
                 name: 'California Zephyr', origin: 'Chicago', destination: 'San Francisco',
                 distance: 3924, duration: '3 dias',
-                coordinates: [
-                    [41.8781, -87.6298], // Chicago
-                    [41.2524, -95.9980], // Omaha
-                    [40.7608, -111.8910], // Salt Lake City
-                    [39.7392, -104.9903], // Denver
-                    [37.7749, -122.4194]  // San Francisco
-                ],
+                coordinates: [[41.8781, -87.6298], [41.2524, -95.9980], [40.7608, -111.8910], [39.7392, -104.9903], [37.7749, -122.4194]],
                 weather: { icon: '☀️', text: 'Sol', temp: '22°C' },
                 scenery: [{ lat: 40.0, text: 'Rocky Mountains', icon: 'fa-mountain' }]
             },
             'canadian': {
                 name: 'The Canadian', origin: 'Toronto', destination: 'Vancouver',
                 distance: 4466, duration: '4 dias',
-                coordinates: [
-                    [43.6532, -79.3832], // Toronto
-                    [43.6650, -79.3830], // Union Station
-                    [49.8951, -97.1384], // Winnipeg
-                    [53.5461, -113.4938], // Edmonton
-                    [50.4452, -104.6189], // Regina
-                    [49.2827, -123.1207]  // Vancouver
-                ],
+                coordinates: [[43.6532, -79.3832], [43.6650, -79.3830], [49.8951, -97.1384], [53.5461, -113.4938], [49.2827, -123.1207]],
                 weather: { icon: '🍁', text: 'Outono', temp: '8°C' },
                 scenery: [{ lat: 52.0, text: 'Canadian Rockies', icon: 'fa-mountain' }]
             },
             'tren-a-la-nube': {
                 name: 'Tren a las Nubes', origin: 'Salta', destination: 'San Antonio',
                 distance: 434, duration: '15 horas',
-                coordinates: [
-                    [-24.7859, -65.4117], // Salta
-                    [-24.3000, -65.8000], // Campo Quijano
-                    [-24.2333, -66.3000], // La Polvorilla
-                    [-24.0833, -66.8333]  // San Antonio
-                ],
+                coordinates: [[-24.7859, -65.4117], [-24.3000, -65.8000], [-24.2333, -66.3000], [-24.0833, -66.8333]],
                 weather: { icon: '☀️', text: 'Céu Limpo', temp: '5°C' },
                 scenery: [{ lat: -24.2, text: 'Viaduto La Polvorilla', icon: 'fa-archway' }]
             },
             'serra-verde': {
                 name: 'Serra Verde', origin: 'Curitiba', destination: 'Morretes',
                 distance: 110, duration: '3 horas',
-                coordinates: [
-                    [-25.4284, -49.2733], // Curitiba
-                    [-25.4500, -49.0500], // Quatro Barras (subida)
-                    [-25.5000, -48.9000], // Marumbi
-                    [-25.5400, -48.7889]  // Morretes
-                ],
+                coordinates: [[-25.4284, -49.2733], [-25.4500, -49.0500], [-25.5000, -48.9000], [-25.5400, -48.7889]],
                 weather: { icon: '🌧️', text: 'Chuva', temp: '16°C' },
                 scenery: [{ lat: -25.48, text: 'Serra do Mar', icon: 'fa-tree' }]
             },
             'tren-maya': {
                 name: 'Tren Maya', origin: 'Cancún', destination: 'Palenque',
                 distance: 1500, duration: '8 horas',
-                coordinates: [
-                    [21.1619, -86.8515], // Cancún
-                    [20.9674, -89.5926], // Mérida
-                    [20.2124, -89.5550], // Uxmal
-                    [18.5397, -92.4707]  // Palenque
-                ],
+                coordinates: [[21.1619, -86.8515], [20.9674, -89.5926], [20.2124, -89.5550], [18.5397, -92.4707]],
                 weather: { icon: '🌴', text: 'Tropical', temp: '28°C' },
                 scenery: [{ lat: 20.0, text: 'Selva Maya', icon: 'fa-tree' }]
             }
@@ -540,18 +508,35 @@
                 if(window.innerWidth < 600) toggleSidebar();
             });
 
+            // Slider Desktop
             const slider = document.getElementById('speedSlider');
             slider.addEventListener('input', (e) => {
                 currentSpeed = parseInt(e.target.value);
-                document.getElementById('speedValue').textContent = currentSpeed;
-                updateTimeDisplay();
+                updateSpeedDisplay();
             });
 
-            document.getElementById('progressBarBg').addEventListener('click', (e) => {
-                const rect = e.target.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                jumpToPosition(percent);
+            // Progress Bar (Input Range) - Dragging Logic
+            const progressBar = document.getElementById('progressBar');
+            progressBar.addEventListener('input', (e) => {
+                const percent = parseFloat(e.target.value);
+                jumpToPosition(percent / 100);
             });
+        }
+
+        function updateSpeedDisplay() {
+            // Atualiza tanto mobile quanto desktop
+            document.getElementById('mobileSpeedValue').textContent = currentSpeed;
+            document.getElementById('desktopSpeedValue').textContent = currentSpeed;
+            document.getElementById('speedSlider').value = currentSpeed;
+            updateTimeDisplay();
+        }
+
+        // Função para botões + e - do Mobile
+        function adjustSpeed(amount) {
+            currentSpeed += amount;
+            if(currentSpeed < 40) currentSpeed = 40;
+            if(currentSpeed > 800) currentSpeed = 800;
+            updateSpeedDisplay();
         }
 
         function loadRoute(key, savedData = null) {
@@ -561,17 +546,17 @@
             if (savedData) {
                 currentPosition = savedData.position;
                 currentSpeed = savedData.speed;
-                document.getElementById('speedSlider').value = currentSpeed;
-                document.getElementById('speedValue').textContent = currentSpeed;
             } else {
                 currentPosition = 0;
                 elapsedTime = 0;
-                // Resetar botão play visualmente
-                const btn = document.getElementById('playPauseBtn');
-                btn.classList.remove('playing');
-                btn.innerHTML = '<i class="fas fa-play"></i>';
-                isPlaying = false;
+                currentSpeed = 120;
             }
+
+            // Resetar Play
+            isPlaying = false;
+            updatePlayButtonUI();
+
+            updateSpeedDisplay();
 
             // Atualizar UI
             document.getElementById('bottomOrigin').textContent = currentRoute.origin;
@@ -586,7 +571,6 @@
             if (trainMarker) map.removeLayer(trainMarker);
 
             const latlngs = currentRoute.coordinates;
-            // L.polyline com smoothFactor para suavizar as linhas entre pontos
             routeLine = L.polyline(latlngs, { color: '#ffd700', weight: 5, opacity: 0.9, smoothFactor: 1 }).addTo(map);
             trainMarker = L.circleMarker(latlngs[0], { radius: 8, fillColor: '#ffd700', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map);
 
@@ -601,7 +585,6 @@
             let accumulatedDist = 0;
             let startIdx = 0;
 
-            // Interpolação entre pontos
             for(let i=0; i<coords.length-1; i++) {
                 const d = map.distance(coords[i], coords[i+1]) / 1000;
                 if(accumulatedDist + d >= currentPosition) {
@@ -621,12 +604,18 @@
 
             trainMarker.setLatLng([lat, lng]);
 
-            // Atualizar barra
-            document.getElementById('progressBarFill').style.width = (percent * 100) + '%';
-            document.getElementById('progressPercent').textContent = (percent * 100).toFixed(0) + '%';
+            // Atualizar Progress Bar (Input value e Background Gradient)
+            const percentVal = (percent * 100).toFixed(1);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.value = percentVal;
+            // Truque CSS para preencher a barra de input
+            progressBar.style.backgroundSize = percentVal + '% 100%';
 
+            document.getElementById('progressPercent').textContent = Math.round(percent) + '%';
+
+            // Centralizar no trem se estiver tocando
             if (isPlaying && currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
-                map.panTo([lat, lng], { animate: true, duration: 0.5 });
+                map.panTo([lat, lng], { animate: true, duration: 0.1 }); // Duration curto para seguir firme
             }
 
             updateTimeDisplay();
@@ -635,17 +624,57 @@
 
         function togglePlay() {
             isPlaying = !isPlaying;
-            const btn = document.getElementById('playPauseBtn');
-            const icon = btn.querySelector('i');
+            updatePlayButtonUI();
             
             if (isPlaying) {
-                btn.classList.add('playing');
-                btn.innerHTML = '<i class="fas fa-pause"></i>';
                 animate();
             } else {
-                btn.classList.remove('playing');
-                btn.innerHTML = '<i class="fas fa-play"></i>';
                 cancelAnimationFrame(animationId);
+            }
+        }
+
+        function updatePlayButtonUI() {
+            // Atualiza Desktop
+            const btnDesktop = document.getElementById('desktopPlayBtn');
+            // Não existe botão de play mobile no HTML, pois o controle vertical é só velocidade.
+            // Se quisermos um play mobile na coluna, precisaríamos adicionar, mas o foco foi velocidade vertical.
+            // Assumindo que no mobile o usuário pode querer pausar, talvez devamos adicionar um botão play 
+            // ao lado do vertical ou assumir que ele usa o menu. 
+            // Vamos adicionar um botão de play pequeno acima do controle vertical para mobile.
+            
+            // Lógica de Ícone
+            const iconClass = isPlaying ? 'fa-pause' : 'fa-play';
+            const playingClass = isPlaying ? 'playing' : '';
+            
+            btnDesktop.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            if(isPlaying) btnDesktop.classList.add('playing');
+            else btnDesktop.classList.remove('playing');
+
+            // Mobile Play Button Logic (Vamos criar um dinamicamente se não existir, ou usar o do menu se preferir)
+            // Como o usuário pediu especificamente a velocidade vertical abaixo do player, 
+            // vamos garantir que o botão de play exista na coluna para mobile também.
+            let mobileBtn = document.getElementById('mobileColPlayBtn');
+            if(!mobileBtn) {
+                // Injeta se não existir (para mobile)
+                const controls = document.querySelector('.map-controls');
+                const btn = document.createElement('button');
+                btn.className = 'control-btn';
+                btn.id = 'mobileColPlayBtn';
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                btn.onclick = togglePlay;
+                // Inserir antes do controle de velocidade
+                const speedCtrl = document.querySelector('.mobile-speed-control');
+                controls.insertBefore(btn, speedCtrl);
+                mobileBtn = btn;
+            }
+            
+            mobileBtn.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            if(isPlaying) {
+                mobileBtn.style.background = '#ff4757';
+                mobileBtn.style.color = '#fff';
+            } else {
+                mobileBtn.style.background = 'rgba(255, 255, 255, 0.95)';
+                mobileBtn.style.color = '#1e3c72';
             }
         }
 
@@ -738,7 +767,7 @@
             }
         }
 
-        // --- Sistema de Salvar/Carregar ---
+        // --- Save/Load ---
         function saveTrip() {
             const tripData = {
                 id: Date.now(),
@@ -756,7 +785,6 @@
             btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
             setTimeout(() => btn.innerHTML = originalText, 2000);
         }
-
         function loadSavedTrip(id) {
             let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
             const trip = savedTrips.find(t => t.id === id);
@@ -765,7 +793,6 @@
                 toggleSidebar();
             }
         }
-
         function deleteTrip(id, event) {
             event.stopPropagation();
             if(!confirm('Apagar esta viagem?')) return;
@@ -774,7 +801,6 @@
             localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
             renderSavedTrips();
         }
-
         function renderSavedTrips() {
             const list = document.getElementById('savedTripsList');
             const savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
@@ -788,21 +814,21 @@
                 const percent = Math.round((trip.position / routes[trip.routeKey].distance) * 100);
                 const card = document.createElement('div');
                 card.className = 'trip-card';
+                card.style.cssText = "background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary); cursor: pointer;";
                 card.onclick = () => loadSavedTrip(trip.id);
                 card.innerHTML = `
-                    <div class="trip-info" style="cursor:pointer; flex:1;">
+                    <div style="flex:1;">
                         <strong>${routeName}</strong>
-                        <small>${percent}% • ${trip.date}</small>
+                        <small style="display:block; color: rgba(255,255,255,0.5); font-size: 10px;">${percent}% • ${trip.date}</small>
                     </div>
-                    <div class="trip-actions">
-                        <button class="btn-load" onclick="loadSavedTrip(${trip.id})"><i class="fas fa-play"></i></button>
-                        <button class="btn-delete" onclick="deleteTrip(${trip.id}, event)"><i class="fas fa-trash"></i></button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-load" onclick="loadSavedTrip(${trip.id})" style="background:none; border:none; color:var(--primary); cursor:pointer;"><i class="fas fa-play"></i></button>
+                        <button class="btn-delete" onclick="deleteTrip(${trip.id}, event)" style="background:none; border:none; color:#ff4757; cursor:pointer;"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 list.appendChild(card);
             });
         }
-
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
