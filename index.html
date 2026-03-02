@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Viagem de Trem - Journey Rail</title>
+    <title>Faça turismo por conta da Thaisa</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -15,6 +15,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --primary: #ffd700;
+            --primary-dark: #e6c200;
+            --bg-dark: rgba(20, 30, 48, 0.85);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -23,618 +30,456 @@
 
         body {
             font-family: 'Lato', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #1e3c72;
             color: #fff;
+            height: 100vh;
             overflow: hidden;
-            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .container {
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            height: 100vh;
-            position: relative;
-        }
-
-        /* Header */
+        /* --- Header --- */
         .header {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: none; /* Deixa clicar no mapa através do header vazio */
+        }
+
+        .header-content {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .menu-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            justify-content: center;
+            font-size: 18px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
         }
 
-        .logo i {
-            color: #ffd700;
+        .menu-btn:hover {
+            background: var(--primary);
+            color: #000;
         }
 
-        /* Main Content */
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-            padding: 20px;
-            overflow: hidden;
+        /* --- Map Container --- */
+        #map {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
 
-        /* Sidebar */
-        .sidebar {
-            background: rgba(255, 255, 255, 0.1);
+        /* --- Bottom Info Bar (Mobile Friendly) --- */
+        .bottom-bar {
+            background: var(--bg-dark);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            z-index: 1000;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+
+        .info-item {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            gap: 4px;
         }
 
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
+        .info-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .weather-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* --- Sidebar (Settings Panel) --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100%;
+            background: rgba(30, 40, 60, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            color: #ffd700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Controls inside Sidebar */
+        .control-group {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .group-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* Route Selector */
-        .route-selector {
-            position: relative;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(0, 0, 0, 0.4);
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            appearance: none;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #ffd700;
-        }
-
-        .select-arrow {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-
-        /* Info Cards */
-        .info-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 20px;
-            border-left: 4px solid #ffd700;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-
-        .info-label {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .info-value {
-            font-weight: 700;
-            color: #fff;
-        }
-
-        /* Speed Control */
-        .speed-control {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 20px;
+        /* Speed Slider */
+        .speed-container {
+            text-align: center;
         }
 
         .speed-display {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .speed-value {
-            font-size: 48px;
+            font-size: 32px;
             font-weight: 700;
-            color: #ffd700;
+            color: var(--primary);
             font-family: 'Playfair Display', serif;
-        }
-
-        .speed-unit {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
         }
 
         input[type="range"] {
             width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
             outline: none;
             -webkit-appearance: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: #ffd700;
+            background: var(--primary);
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Play/Pause Big Button */
+        .play-control {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-main {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             transition: transform 0.2s;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        .speed-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 700;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        .btn-play {
+            background: var(--primary);
             color: #1e3c72;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn.active {
-            background: #4CAF50;
+        .btn-play.playing {
+            background: #ff4757;
             color: white;
         }
 
-        /* Map Container */
-        .map-container {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        #map {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-        }
-
-        /* Zoom Controls */
-        .zoom-controls {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+        /* Saved Trips */
+        .saved-trips-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            z-index: 1000;
         }
 
-        .zoom-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #1e3c72;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .zoom-btn:hover {
-            background: #fff;
-            transform: scale(1.1);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 20px 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .progress-info {
+        .trip-card {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
+            align-items: center;
+            border-left: 3px solid var(--primary);
         }
 
-        .progress-bar-bg {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
+        .trip-info small {
+            display: block;
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+        }
+
+        .trip-actions button {
+            background: none;
+            border: none;
+            color: #fff;
             cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
         }
 
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
-            border-radius: 6px;
-            transition: width 0.3s;
+        .btn-load { color: var(--primary); }
+        .btn-delete { color: #ff4757; }
+
+        /* Select */
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Overlay for progress */
+        .progress-overlay {
+            position: absolute;
+            bottom: 140px; /* Above bottom bar */
+            left: 20px;
+            right: 20px;
+            z-index: 900;
+            pointer-events: none;
+        }
+
+        .progress-track {
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
             position: relative;
         }
 
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        /* Map Markers */
-        .train-marker {
-            background: #ffd700;
-            border: 3px solid #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
-        }
-
-        .station-marker {
-            background: #fff;
-            border: 3px solid #1e3c72;
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-        }
-
-        /* Scenery Overlay */
-        .scenery-overlay {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 1s;
-            pointer-events: none;
-        }
-
-        .scenery-overlay.show {
-            opacity: 1;
-        }
-
-        /* Responsive */
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr;
-            }
-            
-            .sidebar {
-                max-height: 40vh;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .progress-fill {
             height: 100%;
-            background: #1e3c72;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
         }
 
-        .loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #ffd700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Weather Info */
-        .weather-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .weather-icon {
-            font-size: 24px;
-        }
-
-        /* Time Display */
-        .time-display {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            margin-top: 5px;
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            .bottom-bar {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .info-value {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="loader"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                Thaisa <span>Travel</span>
+            </div>
+        </div>
+        <div style="font-size: 12px; opacity: 0.8;" id="dateDisplay"></div>
+    </header>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Progress Bar Overlay -->
+    <div class="progress-overlay">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
     </div>
 
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <i class="fas fa-train"></i>
-                <span>Journey Rail Simulator</span>
-            </div>
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <div style="text-align: right;">
-                    <div style="font-size: 14px; opacity: 0.8;">Data da Viagem</div>
-                    <div style="font-weight: 700;" id="currentDate"></div>
+    <!-- Bottom Info Bar -->
+    <div class="bottom-bar">
+        <div class="info-item">
+            <span class="info-label">Origem</span>
+            <span class="info-value" id="bottomOrigin">Moscou</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Destino</span>
+            <span class="info-value" id="bottomDest">Vladivostok</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Distância</span>
+            <span class="info-value" id="bottomDist">9.289 km</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Tempo Est.</span>
+            <span class="info-value" id="bottomTime">7 dias</span>
+        </div>
+        <div class="info-item" style="justify-content: center;">
+            <div class="weather-badge">
+                <span id="bottomWeatherIcon">❄️</span>
+                <div style="display:flex; flex-direction:column;">
+                    <span id="bottomWeatherText" style="font-size:10px;">Neve</span>
+                    <span id="bottomTemp" style="font-weight:bold;">-15°C</span>
                 </div>
             </div>
-        </header>
+        </div>
+    </div>
 
-        <div class="main-content">
-            <aside class="sidebar">
-                <div class="route-selector">
-                    <div class="section-title">
-                        <i class="fas fa-route"></i>
-                        Selecionar Rota
-                    </div>
-                    <select id="routeSelect">
-                        <optgroup label="🌏 Ásia">
-                            <option value="trans-siberian">Trans-Siberiana (Rússia)</option>
-                            <option value="shinkansen">Shinkansen (Japão)</option>
-                            <option value="orient-express-asia">Orient Express (Ásia)</option>
-                        </optgroup>
-                        <optgroup label="🌍 Europa">
-                            <option value="orient-express">Orient Express (Europa)</option>
-                            <option value="glacier-express">Glacier Express (Suíça)</option>
-                            <option value="bernina-express">Bernina Express (Suíça/Itália)</option>
-                            <option value="northern-lights">Trem das Luzes do Norte (Noruega)</option>
-                        </optgroup>
-                        <optgroup label="🌎 América do Norte">
-                            <option value="california-zephyr">California Zephyr (EUA)</option>
-                            <option value="canadian">The Canadian (Canadá)</option>
-                            <option value="coast-starlight">Coast Starlight (EUA)</option>
-                        </optgroup>
-                        <optgroup label="🌎 América do Sul">
-                            <option value="tren-a-la-nube">Tren a las Nubes (Argentina)</option>
-                            <option value="death-railway">Trem da Morte (Bolívia)</option>
-                            <option value="serra-verde">Serra Verde Express (Brasil)</option>
-                        </optgroup>
-                        <optgroup label="🌎 América Central">
-                            <option value="tren-maya">Tren Maya (México)</option>
-                            <option value="panama-canal">Trem do Canal do Panamá</option>
-                        </optgroup>
-                    </select>
-                    <div class="select-arrow">
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+    <!-- Sidebar Settings -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="font-family: 'Playfair Display';">Configurações</h2>
+            <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+        </div>
 
-                <div class="info-card">
-                    <div class="section-title">
-                        <i class="fas fa-info-circle"></i>
-                        Informações da Rota
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Origem:</span>
-                        <span class="info-value" id="origin">Moscou</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Destino:</span>
-                        <span class="info-value" id="destination">Vladivostok</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Distância Total:</span>
-                        <span class="info-value" id="totalDistance">9.289 km</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Tempo Estimado:</span>
-                        <span class="info-value" id="totalTime">7 dias</span>
-                    </div>
-                    <div class="weather-info">
-                        <span class="weather-icon" id="weatherIcon">☀️</span>
-                        <div>
-                            <div style="font-size: 14px; font-weight: 700;" id="weatherText">Ensolarado</div>
-                            <div style="font-size: 12px; opacity: 0.7;" id="temperature">15°C</div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Route Selection -->
+        <div class="control-group">
+            <div class="group-title"><i class="fas fa-map-marked-alt"></i> Escolher Rota</div>
+            <select id="routeSelect">
+                <optgroup label="🌏 Ásia">
+                    <option value="trans-siberian">Trans-Siberiana (Rússia)</option>
+                    <option value="shinkansen">Shinkansen (Japão)</option>
+                </optgroup>
+                <optgroup label="🌍 Europa">
+                    <option value="orient-express">Orient Express (Europa)</option>
+                    <option value="glacier-express">Glacier Express (Suíça)</option>
+                </optgroup>
+                <optgroup label="🌎 Américas">
+                    <option value="california-zephyr">California Zephyr (EUA)</option>
+                    <option value="canadian">The Canadian (Canadá)</option>
+                    <option value="tren-a-la-nube">Tren a las Nubes (Argentina)</option>
+                    <option value="serra-verde">Serra Verde (Brasil)</option>
+                    <option value="tren-maya">Tren Maya (México)</option>
+                </optgroup>
+            </select>
+        </div>
 
-                <div class="speed-control">
-                    <div class="section-title">
-                        <i class="fas fa-tachometer-alt"></i>
-                        Controle de Velocidade
-                    </div>
-                    <div class="speed-display">
-                        <div class="speed-value" id="speedValue">120</div>
-                        <div class="speed-unit">km/h</div>
-                    </div>
-                    <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
-                    <div class="speed-labels">
-                        <span>40 km/h</span>
-                        <span>400 km/h</span>
-                        <span>800 km/h</span>
-                    </div>
-                    <div class="time-display" id="timeDisplay">
-                        Tempo restante: 77h 24min
-                    </div>
-                </div>
-
-                <div class="controls">
-                    <button class="btn btn-primary" id="playPauseBtn">
-                        <i class="fas fa-play"></i>
-                        <span>Iniciar</span>
-                    </button>
-                    <button class="btn btn-secondary" id="continuousBtn">
-                        <i class="fas fa-infinity"></i>
-                        <span>Contínuo</span>
-                    </button>
-                </div>
-
-                <div class="info-card">
-                    <div class="section-title">
-                        <i class="fas fa-chart-line"></i>
-                        Progresso da Viagem
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Distância Percorrida:</span>
-                        <span class="info-value" id="distanceTraveled">0 km</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Tempo Decorrido:</span>
-                        <span class="info-value" id="timeElapsed">00:00:00</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Próxima Parada:</span>
-                        <span class="info-value" id="nextStop">Yaroslavl</span>
-                    </div>
-                </div>
-            </aside>
-
-            <div class="map-container">
-                <div id="map"></div>
-                <div class="zoom-controls">
-                    <button class="zoom-btn" onclick="changeZoom('in')" title="Aproximar">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="changeZoom('out')" title="Afastar">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="resetView()" title="Visão Global">
-                        <i class="fas fa-globe"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="toggleSatellite()" title="Satélite">
-                        <i class="fas fa-satellite"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="toggleCabin()" title="Cabine">
-                        <i class="fas fa-train"></i>
-                    </button>
-                </div>
-                <div class="scenery-overlay" id="sceneryOverlay">
-                    <i class="fas fa-mountain" id="sceneryIcon"></i>
-                    <span id="sceneryText">Atravessando os Montes Urais</span>
+        <!-- Speed Control -->
+        <div class="control-group">
+            <div class="group-title"><i class="fas fa-tachometer-alt"></i> Velocidade</div>
+            <div class="speed-container">
+                <div class="speed-display"><span id="speedValue">120</span> <span style="font-size:14px">km/h</span></div>
+                <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
+                <div style="display:flex; justify-content:space-between; font-size:10px; margin-top:5px; opacity:0.6;">
+                    <span>Lento (40)</span>
+                    <span>Rápido (800)</span>
                 </div>
             </div>
         </div>
 
-        <div class="progress-container">
-            <div class="progress-info">
-                <span id="progressStart">Moscou</span>
-                <span id="progressPercent">0% completado</span>
-                <span id="progressEnd">Vladivostok</span>
+        <!-- Playback Controls -->
+        <div class="control-group">
+            <div class="group-title"><i class="fas fa-play-circle"></i> Controle de Viagem</div>
+            <div class="play-control">
+                <button class="btn-main btn-play" id="playPauseBtn" onclick="togglePlay()">
+                    <i class="fas fa-play"></i> Iniciar
+                </button>
+                <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()">
+                    <i class="fas fa-infinity"></i>
+                </button>
             </div>
-            <div class="progress-bar-bg" id="progressBarBg">
-                <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+            <div style="margin-top:15px; font-size:12px; text-align:center; opacity:0.7;">
+                Toque no mapa para mover o trem
+            </div>
+        </div>
+
+        <!-- Save/Load System -->
+        <div class="control-group">
+            <div class="group-title"><i class="fas fa-save"></i> Minhas Viagens</div>
+            <button class="btn-main btn-secondary" style="width:100%; margin-bottom:15px;" onclick="saveTrip()">
+                <i class="fas fa-download"></i> Salvar Progresso Atual
+            </button>
+            
+            <div class="saved-trips-list" id="savedTripsList">
+                <!-- Lista preenchida via JS -->
+                <div style="text-align:center; opacity:0.5; font-size:12px;">Nenhuma viagem salva</div>
             </div>
         </div>
     </div>
@@ -643,367 +488,210 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Database de Rotas
+        // --- Database de Rotas ---
         const routes = {
             'trans-siberian': {
-                name: 'Trans-Siberiana',
-                origin: 'Moscou',
-                destination: 'Vladivostok',
-                distance: 9289,
-                duration: '7 dias',
-                coordinates: [
-                    [55.7558, 37.6173], // Moscou
-                    [57.6261, 39.8845], // Yaroslavl
-                    [56.8389, 60.6057], // Yekaterinburg
-                    [55.0084, 82.9357], // Novosibirsk
-                    [52.2978, 104.2964], // Irkutsk
-                    [51.8333, 107.5667], // Ulan-Ude
-                    [50.0417, 113.0500], // Chita
-                    [48.4833, 135.0833], // Khabarovsk
-                    [43.1056, 131.8735]  // Vladivostok
-                ],
-                stops: ['Moscou', 'Yaroslavl', 'Yekaterinburg', 'Novosibirsk', 'Irkutsk', 'Ulan-Ude', 'Chita', 'Khabarovsk', 'Vladivostok'],
-                scenery: [
-                    { lat: 57, text: 'Atravessando os Montes Urais', icon: 'fa-mountain' },
-                    { lat: 55, text: 'Planície Siberiana', icon: 'fa-tree' },
-                    { lat: 52, text: 'Lago Baikal - Vista Panorâmica', icon: 'fa-water' },
-                    { lat: 48, text: 'Floresta Taiga', icon: 'fa-tree' }
-                ],
+                name: 'Trans-Siberiana', origin: 'Moscou', destination: 'Vladivostok',
+                distance: 9289, duration: '7 dias',
+                coordinates: [[55.7558, 37.6173], [57.6261, 39.8845], [56.8389, 60.6057], [55.0084, 82.9357], [52.2978, 104.2964], [43.1056, 131.8735]],
                 weather: { icon: '❄️', text: 'Neve', temp: '-15°C' }
             },
             'shinkansen': {
-                name: 'Shinkansen',
-                origin: 'Tóquio',
-                destination: 'Osaka',
-                distance: 515,
-                duration: '2h 30min',
-                coordinates: [
-                    [35.6762, 139.6503], // Tóquio
-                    [35.4437, 139.6380], // Yokohama
-                    [35.1815, 136.9066], // Nagoya
-                    [34.6937, 135.5023], // Osaka
-                    [34.9858, 135.7581]  // Kyoto
-                ],
-                stops: ['Tóquio', 'Yokohama', 'Nagoya', 'Kyoto', 'Osaka'],
-                scenery: [
-                    { lat: 35.5, text: 'Vista do Monte Fuji', icon: 'fa-mountain' },
-                    { lat: 35.0, text: 'Cidades Japonesas', icon: 'fa-city' }
-                ],
+                name: 'Shinkansen', origin: 'Tóquio', destination: 'Osaka',
+                distance: 515, duration: '2h 30min',
+                coordinates: [[35.6762, 139.6503], [35.4437, 139.6380], [35.1815, 136.9066], [34.6937, 135.5023]],
                 weather: { icon: '🌸', text: 'Primavera', temp: '18°C' }
             },
             'orient-express': {
-                name: 'Orient Express',
-                origin: 'Paris',
-                destination: 'Istambul',
-                distance: 3000,
-                duration: '3 dias',
-                coordinates: [
-                    [48.8566, 2.3522],  // Paris
-                    [48.5734, 7.7521],  // Estrasburgo
-                    [47.3769, 8.5417],  // Zurique
-                    [45.4642, 9.1900],  // Milão
-                    [48.2082, 16.3738], // Viena
-                    [47.4979, 19.0402], // Budapeste
-                    [44.4268, 26.1025], // Bucareste
-                    [41.0082, 28.9784]  // Istambul
-                ],
-                stops: ['Paris', 'Estrasburgo', 'Zurique', 'Milão', 'Viena', 'Budapeste', 'Bucareste', 'Istambul'],
-                scenery: [
-                    { lat: 47, text: 'Alpes Suíços', icon: 'fa-mountain' },
-                    { lat: 45, text: 'Planície do Pó', icon: 'fa-leaf' },
-                    { lat: 44, text: 'Cárpatos', icon: 'fa-mountain' }
-                ],
-                weather: { icon: '🌤️', text: 'Parcialmente Nublado', temp: '12°C' }
+                name: 'Orient Express', origin: 'Paris', destination: 'Istambul',
+                distance: 3000, duration: '3 dias',
+                coordinates: [[48.8566, 2.3522], [47.3769, 8.5417], [48.2082, 16.3738], [41.0082, 28.9784]],
+                weather: { icon: '🌤️', text: 'Nublado', temp: '12°C' }
             },
             'glacier-express': {
-                name: 'Glacier Express',
-                origin: 'Zermatt',
-                destination: 'St. Moritz',
-                distance: 291,
-                duration: '8 horas',
-                coordinates: [
-                    [46.0207, 7.7491],  // Zermatt
-                    [46.5197, 7.9638],  // Brig
-                    [46.6167, 8.3667],  // Andermatt
-                    [46.6569, 9.8355],  // St. Moritz
-                    [46.8480, 9.8355]   // Davos
-                ],
-                stops: ['Zermatt', 'Brig', 'Andermatt', 'Disentis', 'Chur', 'St. Moritz'],
-                scenery: [
-                    { lat: 46.5, text: 'Passo de Oberalp', icon: 'fa-mountain' },
-                    { lat: 46.6, text: 'Desfiladeiro de Rhine', icon: 'fa-water' }
-                ],
+                name: 'Glacier Express', origin: 'Zermatt', destination: 'St. Moritz',
+                distance: 291, duration: '8 horas',
+                coordinates: [[46.0207, 7.7491], [46.6167, 8.3667], [46.6569, 9.8355]],
                 weather: { icon: '⛷️', text: 'Neve', temp: '-5°C' }
             },
             'california-zephyr': {
-                name: 'California Zephyr',
-                origin: 'Chicago',
-                destination: 'San Francisco',
-                distance: 3924,
-                duration: '3 dias',
-                coordinates: [
-                    [41.8781, -87.6298], // Chicago
-                    [41.2565, -95.9345], // Omaha
-                    [39.7392, -104.9903], // Denver
-                    [40.7608, -111.8910], // Salt Lake City
-                    [39.5296, -119.8138], // Reno
-                    [38.5816, -121.4944], // Sacramento
-                    [37.7749, -122.4194]  // San Francisco
-                ],
-                stops: ['Chicago', 'Omaha', 'Denver', 'Salt Lake City', 'Reno', 'Sacramento', 'San Francisco'],
-                scenery: [
-                    { lat: 41, text: 'Grandes Planícies', icon: 'fa-tractor' },
-                    { lat: 40, text: 'Montanhas Rochosas', icon: 'fa-mountain' },
-                    { lat: 39, text: 'Deserto de Nevada', icon: 'fa-sun' }
-                ],
-                weather: { icon: '☀️', text: 'Ensolarado', temp: '22°C' }
+                name: 'California Zephyr', origin: 'Chicago', destination: 'San Francisco',
+                distance: 3924, duration: '3 dias',
+                coordinates: [[41.8781, -87.6298], [39.7392, -104.9903], [40.7608, -111.8910], [37.7749, -122.4194]],
+                weather: { icon: '☀️', text: 'Sol', temp: '22°C' }
             },
             'canadian': {
-                name: 'The Canadian',
-                origin: 'Toronto',
-                destination: 'Vancouver',
-                distance: 4466,
-                duration: '4 dias',
-                coordinates: [
-                    [43.6532, -79.3832],  // Toronto
-                    [46.8139, -71.2080],  // Quebec (via Montreal)
-                    [45.5017, -73.5673],  // Montreal
-                    [43.7615, -79.4111],  // Toronto
-                    [49.8951, -97.1384],  // Winnipeg
-                    [51.0447, -114.0719], // Calgary
-                    [53.5461, -113.4938], // Edmonton
-                    [49.2827, -123.1207]  // Vancouver
-                ],
-                stops: ['Toronto', 'Montreal', 'Winnipeg', 'Saskatoon', 'Edmonton', 'Jasper', 'Vancouver'],
-                scenery: [
-                    { lat: 50, text: 'Pradarias Canadenses', icon: 'fa-wheat-awn' },
-                    { lat: 52, text: 'Montanhas Rochosas', icon: 'fa-mountain' },
-                    { lat: 53, text: 'Floresta Boreal', icon: 'fa-tree' }
-                ],
+                name: 'The Canadian', origin: 'Toronto', destination: 'Vancouver',
+                distance: 4466, duration: '4 dias',
+                coordinates: [[43.6532, -79.3832], [49.8951, -97.1384], [51.0447, -114.0719], [49.2827, -123.1207]],
                 weather: { icon: '🍁', text: 'Outono', temp: '8°C' }
             },
             'tren-a-la-nube': {
-                name: 'Tren a las Nubes',
-                origin: 'Salta',
-                destination: 'San Antonio de los Cobres',
-                distance: 434,
-                duration: '15 horas',
-                coordinates: [
-                    [-24.7859, -65.4117], // Salta
-                    [-24.2333, -66.3000], // San Antonio de los Cobres
-                    [-24.0833, -66.8333], // La Polvorilla
-                    [-24.5000, -66.5000]  // Viaduto La Polvorilla
-                ],
-                stops: ['Salta', 'San Antonio de los Cobres', 'Viaduto La Polvorilla'],
-                scenery: [
-                    { lat: -24.3, text: 'Puna Argentina', icon: 'fa-mountain' },
-                    { lat: -24.1, text: 'Viaduto La Polvorilla', icon: 'fa-bridge' }
-                ],
+                name: 'Tren a las Nubes', origin: 'Salta', destination: 'San Antonio',
+                distance: 434, duration: '15 horas',
+                coordinates: [[-24.7859, -65.4117], [-24.2333, -66.3000], [-24.0833, -66.8333]],
                 weather: { icon: '☀️', text: 'Céu Limpo', temp: '5°C' }
             },
-            'death-railway': {
-                name: 'Trem da Morte',
-                origin: 'La Paz',
-                destination: 'Uyuni',
-                distance: 650,
-                duration: '12 horas',
-                coordinates: [
-                    [-16.5000, -68.1500], // La Paz
-                    [-17.3939, -66.1570], // Oruro
-                    [-20.4597, -66.8273], // Potosí
-                    [-20.4617, -66.8273]  // Uyuni
-                ],
-                stops: ['La Paz', 'Oruro', 'Potosí', 'Uyuni'],
-                scenery: [
-                    { lat: -18, text: 'Altiplano Boliviano', icon: 'fa-mountain' },
-                    { lat: -20, text: 'Salar de Uyuni', icon: 'fa-water' }
-                ],
-                weather: { icon: '☀️', text: 'Seco', temp: '2°C' }
-            },
             'serra-verde': {
-                name: 'Serra Verde Express',
-                origin: 'Curitiba',
-                destination: 'Morretes',
-                distance: 110,
-                duration: '3 horas',
-                coordinates: [
-                    [-25.4284, -49.2733], // Curitiba
-                    [-25.4500, -49.0500], // Serra
-                    [-25.5400, -48.7889]  // Morretes
-                ],
-                stops: ['Curitiba', 'Roça Nova', 'Morretes'],
-                scenery: [
-                    { lat: -25.45, text: 'Mata Atlântica', icon: 'fa-tree' },
-                    { lat: -25.50, text: 'Vales e Cachoeiras', icon: 'fa-water' }
-                ],
+                name: 'Serra Verde', origin: 'Curitiba', destination: 'Morretes',
+                distance: 110, duration: '3 horas',
+                coordinates: [[-25.4284, -49.2733], [-25.4500, -49.0500], [-25.5400, -48.7889]],
                 weather: { icon: '🌧️', text: 'Chuva', temp: '16°C' }
             },
             'tren-maya': {
-                name: 'Tren Maya',
-                origin: 'Cancún',
-                destination: 'Palenque',
-                distance: 1500,
-                duration: '8 horas',
-                coordinates: [
-                    [21.1619, -86.8515],  // Cancún
-                    [20.9674, -89.5926],  // Mérida
-                    [19.8301, -90.5349],  // Campeche
-                    [18.5397, -92.4707],  // Palenque
-                    [17.5000, -92.0000]   // Chiapas
-                ],
-                stops: ['Cancún', 'Mérida', 'Campeche', 'Palenque'],
-                scenery: [
-                    { lat: 20, text: 'Selva Maya', icon: 'fa-tree' },
-                    { lat: 19, text: 'Sítios Arqueológicos', icon: 'fa-landmark' }
-                ],
+                name: 'Tren Maya', origin: 'Cancún', destination: 'Palenque',
+                distance: 1500, duration: '8 horas',
+                coordinates: [[21.1619, -86.8515], [20.9674, -89.5926], [18.5397, -92.4707]],
                 weather: { icon: '🌴', text: 'Tropical', temp: '28°C' }
             }
         };
 
-        // Variáveis Globais
-        let map;
-        let trainMarker;
-        let routeLine;
-        let currentRoute = null;
+        // --- Variáveis de Estado ---
+        let map, trainMarker, routeLine;
+        let currentRouteKey = 'trans-siberian';
+        let currentRoute = routes[currentRouteKey];
         let isPlaying = false;
         let isContinuous = false;
         let currentSpeed = 120;
-        let currentPosition = 0;
-        let elapsedTime = 0;
-        let animationId = null;
-        let currentZoomLevel = 'route'; // 'cabin', 'route', 'satellite', 'globe'
-        let satelliteLayer = null;
+        let currentPosition = 0; // km percorridos
+        let animationId;
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
             initMap();
-            setupEventListeners();
+            setupListeners();
             loadRoute('trans-siberian');
             updateDate();
-            
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
-            }, 1500);
+            renderSavedTrips();
         });
 
         function initMap() {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([55.7558, 37.6173], 4);
-
-            // Camada padrão (OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            // Camada satélite (opcional)
-            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '© Esri'
-            });
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+            
+            // Controles de Zoom manuais no mapa
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
         }
 
-        function setupEventListeners() {
-            // Seletor de rota
-            document.getElementById('routeSelect').addEventListener('change', function() {
-                loadRoute(this.value);
+        function setupListeners() {
+            // Seletor de Rota
+            document.getElementById('routeSelect').addEventListener('change', (e) => {
+                loadRoute(e.target.value);
+                // Fecha o menu no mobile após selecionar
+                if(window.innerWidth < 600) toggleSidebar();
             });
 
-            // Controle de velocidade
-            const speedSlider = document.getElementById('speedSlider');
-            speedSlider.addEventListener('input', function() {
-                currentSpeed = parseInt(this.value);
+            // Slider de Velocidade
+            const slider = document.getElementById('speedSlider');
+            slider.addEventListener('input', (e) => {
+                currentSpeed = parseInt(e.target.value);
                 document.getElementById('speedValue').textContent = currentSpeed;
-                updateTimeDisplay();
             });
 
-            // Botões de controle
-            document.getElementById('playPauseBtn').addEventListener('click', togglePlay);
-            document.getElementById('continuousBtn').addEventListener('click', toggleContinuous);
-            
-            // Barra de progresso
-            document.getElementById('progressBarBg').addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                jumpToPosition(percent);
+            // Clique no mapa para mover o trem
+            map.on('click', (e) => {
+                if(!currentRoute) return;
+                // Lógica simplificada: move o trem para o ponto mais próximo da linha
+                const point = e.latlng;
+                // Apenas para efeito visual neste demo, move o marcador para onde clicou se estiver perto da rota
+                // Em um app real, faríamos projeção na linha poligonal
+                trainMarker.setLatLng(point);
             });
         }
 
-        function loadRoute(routeKey) {
-            currentRoute = routes[routeKey];
+        function loadRoute(key, savedData = null) {
+            currentRouteKey = key;
+            currentRoute = routes[key];
             
-            // Atualizar informações
-            document.getElementById('origin').textContent = currentRoute.origin;
-            document.getElementById('destination').textContent = currentRoute.destination;
-            document.getElementById('totalDistance').textContent = currentRoute.distance.toLocaleString() + ' km';
-            document.getElementById('totalTime').textContent = currentRoute.duration;
-            document.getElementById('weatherIcon').textContent = currentRoute.weather.icon;
-            document.getElementById('weatherText').textContent = currentRoute.weather.text;
-            document.getElementById('temperature').textContent = currentRoute.weather.temp;
-            document.getElementById('progressStart').textContent = currentRoute.origin;
-            document.getElementById('progressEnd').textContent = currentRoute.destination;
-            document.getElementById('nextStop').textContent = currentRoute.stops[1] || currentRoute.destination;
+            // Se houver dados salvos, usa eles
+            if (savedData) {
+                currentPosition = savedData.position;
+                currentSpeed = savedData.speed;
+                document.getElementById('speedSlider').value = currentSpeed;
+                document.getElementById('speedValue').textContent = currentSpeed;
+            } else {
+                currentPosition = 0;
+            }
 
-            // Limpar mapa anterior
+            // Atualizar UI Bottom Bar
+            document.getElementById('bottomOrigin').textContent = currentRoute.origin;
+            document.getElementById('bottomDest').textContent = currentRoute.destination;
+            document.getElementById('bottomDist').textContent = currentRoute.distance.toLocaleString('pt-BR') + ' km';
+            document.getElementById('bottomTime').textContent = currentRoute.duration;
+            document.getElementById('bottomWeatherIcon').textContent = currentRoute.weather.icon;
+            document.getElementById('bottomWeatherText').textContent = currentRoute.weather.text;
+            document.getElementById('bottomTemp').textContent = currentRoute.weather.temp;
+
+            // Atualizar Mapa
             if (routeLine) map.removeLayer(routeLine);
             if (trainMarker) map.removeLayer(trainMarker);
 
-            // Desenhar rota
-            const latlngs = currentRoute.coordinates.map(coord => [coord[0], coord[1]]);
+            const latlngs = currentRoute.coordinates;
+            routeLine = L.polyline(latlngs, { color: '#ffd700', weight: 4, opacity: 0.8, dashArray: '10, 10' }).addTo(map);
             
-            routeLine = L.polyline(latlngs, {
-                color: '#ffd700',
-                weight: 4,
-                opacity: 0.8,
-                dashArray: '10, 10',
-                lineCap: 'round'
+            trainMarker = L.circleMarker(latlngs[0], {
+                radius: 8, fillColor: '#ffd700', color: '#fff', weight: 2, fillOpacity: 1
             }).addTo(map);
 
-            // Adicionar marcadores de estações
-            currentRoute.coordinates.forEach((coord, index) => {
-                L.circleMarker([coord[0], coord[1]], {
-                    radius: 6,
-                    fillColor: '#fff',
-                    color: '#1e3c72',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 1
-                }).addTo(map).bindPopup(currentRoute.stops[index]);
-            });
-
-            // Criar marcador do trem
-            trainMarker = L.circleMarker([currentRoute.coordinates[0][0], currentRoute.coordinates[0][1]], {
-                radius: 10,
-                fillColor: '#ffd700',
-                color: '#fff',
-                weight: 3,
-                opacity: 1,
-                fillOpacity: 1
-            }).addTo(map);
-
-            // Ajustar zoom para mostrar toda a rota
             map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+            updateTrainVisuals();
+        }
 
-            // Resetar posição
-            currentPosition = 0;
-            elapsedTime = 0;
-            updateProgress();
-            updateTimeDisplay();
+        function updateTrainVisuals() {
+            // Interpolação simples para encontrar a lat/lng baseada na % da distância
+            const totalDist = currentRoute.distance;
+            const percent = Math.min(currentPosition / totalDist, 1);
+            
+            // Encontrar segmento atual
+            const coords = currentRoute.coordinates;
+            let accumulatedDist = 0;
+            let startIdx = 0;
+            
+            // Cálculo aproximado de distância entre pontos para interpolação
+            // (Nota: Em produção usaria geolib para distância real entre pontos)
+            for(let i=0; i<coords.length-1; i++) {
+                // Estimativa grosseira de distância do segmento
+                const d = map.distance(coords[i], coords[i+1]) / 1000; 
+                if(accumulatedDist + d >= currentPosition) {
+                    startIdx = i;
+                    break;
+                }
+                accumulatedDist += d;
+            }
+
+            const p1 = coords[startIdx];
+            const p2 = coords[Math.min(startIdx+1, coords.length-1)];
+            
+            // Interpolar posição dentro do segmento
+            const segmentDist = map.distance(p1, p2) / 1000;
+            const segmentProgress = (currentPosition - accumulatedDist) / segmentDist;
+            
+            const lat = p1[0] + (p2[0] - p1[0]) * Math.min(segmentProgress, 1);
+            const lng = p1[1] + (p2[1] - p1[1]) * Math.min(segmentProgress, 1);
+
+            trainMarker.setLatLng([lat, lng]);
+            
+            // Atualizar barra de progresso
+            document.getElementById('progressFill').style.width = (percent * 100) + '%';
+
+            // Atualizar tempo restante estimado
+            const remainingKm = totalDist - currentPosition;
+            const hoursLeft = remainingKm / currentSpeed;
+            // Exibir no console ou num tooltip se desejar
         }
 
         function togglePlay() {
             isPlaying = !isPlaying;
             const btn = document.getElementById('playPauseBtn');
+            const icon = btn.querySelector('i');
             
             if (isPlaying) {
-                btn.innerHTML = '<i class="fas fa-pause"></i><span>Pausar</span>';
-                btn.classList.add('active');
+                btn.classList.add('playing');
+                btn.innerHTML = '<i class="fas fa-pause"></i> Pausar';
                 animate();
             } else {
-                btn.innerHTML = '<i class="fas fa-play"></i><span>Continuar</span>';
-                btn.classList.remove('active');
+                btn.classList.remove('playing');
+                btn.innerHTML = '<i class="fas fa-play"></i> Continuar';
                 cancelAnimationFrame(animationId);
             }
         }
@@ -1011,173 +699,110 @@
         function toggleContinuous() {
             isContinuous = !isContinuous;
             const btn = document.getElementById('continuousBtn');
-            
-            if (isContinuous) {
-                btn.classList.add('active');
-                btn.innerHTML = '<i class="fas fa-infinity"></i><span>Parar</span>';
-            } else {
-                btn.classList.remove('active');
-                btn.innerHTML = '<i class="fas fa-infinity"></i><span>Contínuo</span>';
-            }
+            btn.style.background = isContinuous ? 'var(--primary)' : 'rgba(255,255,255,0.1)';
+            btn.style.color = isContinuous ? '#1e3c72' : '#fff';
         }
 
         function animate() {
             if (!isPlaying) return;
 
-            const totalDistance = currentRoute.distance;
-            const speed = currentSpeed; // km/h
-            const timeStep = 100; // ms
-            const distanceStep = (speed / 3600) * timeStep; // km por frame
+            // Distância percorrida neste frame (km)
+            // Speed (km/h) / 3600 (s) * 0.016 (ms do frame approx)
+            const step = (currentSpeed / 3600) * 0.016; 
             
-            currentPosition += distanceStep;
-            elapsedTime += timeStep / 1000; // segundos
+            currentPosition += step;
 
-            // Verificar se chegou ao fim
-            if (currentPosition >= totalDistance) {
+            if (currentPosition >= currentRoute.distance) {
                 if (isContinuous) {
                     currentPosition = 0;
-                    elapsedTime = 0;
                 } else {
-                    currentPosition = totalDistance;
-                    isPlaying = false;
-                    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i><span>Reiniciar</span>';
-                    document.getElementById('playPauseBtn').classList.remove('active');
+                    currentPosition = currentRoute.distance;
+                    togglePlay(); // Para no fim
+                    alert("Viagem concluída! Que tal salvar ou escolher outra rota?");
                 }
             }
 
-            updateTrainPosition();
-            updateProgress();
-            updateTimeDisplay();
-            checkScenery();
-
+            updateTrainVisuals();
             animationId = requestAnimationFrame(animate);
         }
 
-        function updateTrainPosition() {
-            const percent = currentPosition / currentRoute.distance;
-            const totalPoints = currentRoute.coordinates.length;
-            const currentIndex = Math.floor(percent * (totalPoints - 1));
-            const nextIndex = Math.min(currentIndex + 1, totalPoints - 1);
+        // --- Sistema de Salvar/Carregar ---
+        function saveTrip() {
+            const tripData = {
+                id: Date.now(),
+                routeKey: currentRouteKey,
+                position: currentPosition,
+                speed: currentSpeed,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
+            savedTrips.push(tripData);
+            localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
             
-            const start = currentRoute.coordinates[currentIndex];
-            const end = currentRoute.coordinates[nextIndex];
-            const segmentPercent = (percent * (totalPoints - 1)) - currentIndex;
+            renderSavedTrips();
+            alert('Viagem salva com sucesso!');
+        }
+
+        function loadSavedTrip(id) {
+            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
+            const trip = savedTrips.find(t => t.id === id);
             
-            const lat = start[0] + (end[0] - start[0]) * segmentPercent;
-            const lng = start[1] + (end[1] - start[1]) * segmentPercent;
-            
-            trainMarker.setLatLng([lat, lng]);
-            
-            // Seguir o trem se não estiver em modo global
-            if (currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
-                map.panTo([lat, lng]);
+            if (trip) {
+                loadRoute(trip.routeKey, trip);
+                toggleSidebar(); // Fecha menu
             }
         }
 
-        function updateProgress() {
-            const percent = Math.min((currentPosition / currentRoute.distance) * 100, 100);
-            document.getElementById('progressBarFill').style.width = percent + '%';
-            document.getElementById('progressPercent').textContent = percent.toFixed(1) + '% completado';
-            document.getElementById('distanceTraveled').textContent = Math.round(currentPosition).toLocaleString() + ' km';
+        function deleteTrip(id, event) {
+            event.stopPropagation();
+            if(!confirm('Tem certeza que deseja apagar esta viagem salva?')) return;
+
+            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
+            savedTrips = savedTrips.filter(t => t.id !== id);
+            localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
+            renderSavedTrips();
+        }
+
+        function renderSavedTrips() {
+            const list = document.getElementById('savedTripsList');
+            const savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
             
-            // Atualizar próxima parada
-            const totalPoints = currentRoute.coordinates.length;
-            const currentIndex = Math.floor((percent / 100) * (totalPoints - 1));
-            if (currentIndex < currentRoute.stops.length - 1) {
-                document.getElementById('nextStop').textContent = currentRoute.stops[currentIndex + 1];
+            list.innerHTML = '';
+            
+            if (savedTrips.length === 0) {
+                list.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:12px; padding:10px;">Nenhuma viagem salva</div>';
+                return;
             }
-        }
 
-        function updateTimeDisplay() {
-            const remaining = currentRoute.distance - currentPosition;
-            const hours = remaining / currentSpeed;
-            const h = Math.floor(hours);
-            const m = Math.floor((hours - h) * 60);
-            
-            document.getElementById('timeDisplay').textContent = 
-                `Tempo restante: ${h}h ${m}min`;
-            
-            // Tempo decorrido
-            const elapsedH = Math.floor(elapsedTime / 3600);
-            const elapsedM = Math.floor((elapsedTime % 3600) / 60);
-            const elapsedS = Math.floor(elapsedTime % 60);
-            document.getElementById('timeElapsed').textContent = 
-                `${String(elapsedH).padStart(2, '0')}:${String(elapsedM).padStart(2, '0')}:${String(elapsedS).padStart(2, '0')}`;
-        }
-
-        function jumpToPosition(percent) {
-            currentPosition = currentRoute.distance * percent;
-            updateTrainPosition();
-            updateProgress();
-            updateTimeDisplay();
-        }
-
-        function checkScenery() {
-            const currentLat = trainMarker.getLatLng().lat;
-            const scenery = currentRoute.scenery.find(s => 
-                Math.abs(s.lat - currentLat) < 0.5
-            );
-            
-            const overlay = document.getElementById('sceneryOverlay');
-            if (scenery && !overlay.classList.contains('show')) {
-                document.getElementById('sceneryText').textContent = scenery.text;
-                document.getElementById('sceneryIcon').className = 'fas ' + scenery.icon;
-                overlay.classList.add('show');
+            savedTrips.forEach(trip => {
+                const routeName = routes[trip.routeKey].name;
+                const percent = Math.round((trip.position / routes[trip.routeKey].distance) * 100);
                 
-                setTimeout(() => {
-                    overlay.classList.remove('show');
-                }, 5000);
-            }
+                const card = document.createElement('div');
+                card.className = 'trip-card';
+                card.onclick = () => loadSavedTrip(trip.id);
+                card.innerHTML = `
+                    <div class="trip-info" style="cursor:pointer; flex:1;">
+                        <strong>${routeName}</strong>
+                        <small>${percent}% concluído • ${trip.date}</small>
+                    </div>
+                    <div class="trip-actions">
+                        <button class="btn-load" onclick="loadSavedTrip(${trip.id})"><i class="fas fa-play"></i></button>
+                        <button class="btn-delete" onclick="deleteTrip(${trip.id}, event)"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
         }
 
-        function changeZoom(direction) {
-            if (direction === 'in') {
-                map.zoomIn();
-            } else {
-                map.zoomOut();
-            }
-        }
-
-        function resetView() {
-            if (routeLine) {
-                map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-            }
-            currentZoomLevel = 'route';
-        }
-
-        function toggleSatellite() {
-            if (map.hasLayer(satelliteLayer)) {
-                map.removeLayer(satelliteLayer);
-                currentZoomLevel = 'route';
-            } else {
-                satelliteLayer.addTo(map);
-                currentZoomLevel = 'satellite';
-            }
-        }
-
-        function toggleCabin() {
-            if (currentZoomLevel === 'cabin') {
-                resetView();
-            } else {
-                map.setZoom(18);
-                currentZoomLevel = 'cabin';
-                // Simular vista da cabine
-                showSceneryMessage('Vista da Cabine do Maquinista');
-            }
-        }
-
-        function showSceneryMessage(text) {
-            const overlay = document.getElementById('sceneryOverlay');
-            document.getElementById('sceneryText').textContent = text;
-            document.getElementById('sceneryIcon').className = 'fas fa-train';
-            overlay.classList.add('show');
-            setTimeout(() => overlay.classList.remove('show'), 3000);
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
         function updateDate() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('pt-BR', options);
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('pt-BR', options);
         }
     </script>
 </body>
