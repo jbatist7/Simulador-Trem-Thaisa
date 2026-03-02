@@ -1,983 +1,315 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faça turismo por conta da Thaisa</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #ffd700;
-            --primary-dark: #e6c200;
-            --bg-dark: rgba(20, 30, 48, 0.9);
-            --glass: rgba(255, 255, 255, 0.1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thaisa Travel</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        body {
-            font-family: 'Lato', sans-serif;
-            background: #1e3c72;
-            color: #fff;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+<style>
+:root{
+--gold:#ffd700;
+--dark:#142030;
+--glass:rgba(255,255,255,0.1);
+--blur:blur(10px);
+}
 
-        /* --- Header --- */
-        .header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            pointer-events: none;
-        }
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box;}
 
-        .header-content {
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+body{
+font-family:system-ui,-apple-system;
+background:#1e3c72;
+color:#fff;
+height:100dvh;
+display:grid;
+grid-template-rows:auto 1fr auto;
+overflow:hidden;
+}
 
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
+/* ===== HEADER ===== */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 16px;
+background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent);
+z-index:20;
+}
 
-        .logo span {
-            color: var(--primary);
-        }
+.logo{
+font-weight:700;
+letter-spacing:.5px;
+}
 
-        .menu-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
-        }
+.logo span{color:var(--gold);}
 
-        .menu-btn:hover {
-            background: var(--primary);
-            color: #000;
-        }
+.menu-btn{
+background:var(--glass);
+border:none;
+border-radius:50%;
+width:38px;height:38px;
+color:#fff;
+}
 
-        /* --- Map Container --- */
-        #map {
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+/* ===== MAP ===== */
+#map{
+width:100%;
+height:100%;
+}
 
-        /* --- Map Controls (Recuperados) --- */
-        .map-controls {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 900;
-        }
+/* ===== CONTROLES MAPA ===== */
+.map-controls{
+position:absolute;
+right:12px;
+bottom:160px;
+display:flex;
+gap:8px;
+flex-direction:column;
+z-index:10;
+}
 
-        .control-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #1e3c72;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+.control-btn{
+width:42px;height:42px;
+border-radius:50%;
+border:none;
+background:#fff;
+color:#1e3c72;
+}
 
-        .control-btn:hover {
-            background: #fff;
-            transform: scale(1.1);
-            color: var(--primary);
-        }
+/* ===== OVERLAY ===== */
+.overlay{
+position:absolute;
+bottom:200px;
+left:50%;
+transform:translateX(-50%);
+background:rgba(0,0,0,.7);
+padding:10px 18px;
+border-radius:30px;
+font-size:14px;
+backdrop-filter:var(--blur);
+opacity:0;
+transition:.4s;
+z-index:15;
+}
 
-        .control-btn.active {
-            background: var(--primary);
-            color: #1e3c72;
-        }
+.overlay.show{opacity:1;}
 
-        /* --- Bottom Bar (Info + Controls) --- */
-        .bottom-bar {
-            background: var(--bg-dark);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-        }
+/* ===== BOTTOM ===== */
+.bottom{
+background:rgba(20,30,48,.92);
+backdrop-filter:var(--blur);
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:8px;
+z-index:25;
+}
 
-        /* Progress Bar Section */
-        .progress-section {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+/* ===== PROGRESS ===== */
+.progress{
+display:flex;
+align-items:center;
+gap:8px;
+}
 
-        .progress-track {
-            flex: 1;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
-            position: relative;
-            cursor: pointer;
-        }
+.track{
+flex:1;
+height:6px;
+background:rgba(255,255,255,.2);
+border-radius:4px;
+position:relative;
+}
 
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            border-radius: 4px;
-            transition: width 0.1s linear;
-            position: relative;
-        }
+.fill{
+height:100%;
+width:0%;
+background:var(--gold);
+border-radius:4px;
+}
 
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
+/* ===== INFO ===== */
+.info{
+display:flex;
+gap:12px;
+overflow:auto;
+font-size:12px;
+}
 
-        .time-info {
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            min-width: 80px;
-            text-align: right;
-        }
+.info div{white-space:nowrap;opacity:.9;}
 
-        /* Info Grid Section */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px;
-            align-items: center;
-        }
+/* ===== SPEED ===== */
+.speed{
+display:flex;
+align-items:center;
+gap:8px;
+}
 
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+.speed strong{color:var(--gold);}
 
-        .info-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.6);
-        }
+input[type=range]{
+flex:1;
+}
 
-        .info-value {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+.play{
+background:var(--gold);
+border:none;
+border-radius:8px;
+padding:6px 14px;
+}
 
-        .weather-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 20px;
-            width: fit-content;
-            margin: 0 auto;
-        }
+/* ===== SIDEBAR ===== */
+.sidebar{
+position:fixed;
+top:0;
+right:-100%;
+width:100%;
+height:100%;
+background:#182536;
+padding:20px;
+transition:.3s;
+overflow:auto;
+z-index:50;
+}
 
-        /* Speed Control Section */
-        .speed-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 10px;
-        }
+.sidebar.open{right:0;}
 
-        .speed-display {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'Playfair Display', serif;
-            min-width: 80px;
-        }
+select{
+width:100%;
+padding:10px;
+background:#0f1924;
+color:#fff;
+border:none;
+}
 
-        input[type="range"] {
-            flex: 1;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
+/* ===== RESPONSIVO ===== */
+@media(min-width:700px){
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
+body{
+grid-template-columns:1fr 340px;
+grid-template-rows:auto 1fr auto;
+}
 
-        /* --- Sidebar (Settings Panel) --- */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -350px;
-            width: 350px;
-            height: 100%;
-            background: rgba(30, 40, 60, 0.95);
-            backdrop-filter: blur(15px);
-            z-index: 2000;
-            transition: right 0.3s ease-in-out;
-            padding: 20px;
-            overflow-y: auto;
-            border-left: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
+.sidebar{
+width:340px;
+}
 
-        .sidebar.open {
-            right: 0;
-        }
+.info{
+justify-content:space-between;
+}
 
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+.map-controls{
+bottom:180px;
+}
 
-        .close-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-        }
+}
 
-        .control-group {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 15px;
-        }
-
-        .group-title {
-            font-family: 'Playfair Display', serif;
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .play-control {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-main {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.2s;
-        }
-
-        .btn-play {
-            background: var(--primary);
-            color: #1e3c72;
-        }
-
-        .btn-play.playing {
-            background: #ff4757;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .saved-trips-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .trip-card {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 3px solid var(--primary);
-        }
-
-        .trip-info small {
-            display: block;
-            color: rgba(255,255,255,0.5);
-            font-size: 11px;
-        }
-
-        .trip-actions button {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            padding: 5px;
-            margin-left: 5px;
-        }
-
-        .btn-load { color: var(--primary); }
-        .btn-delete { color: #ff4757; }
-
-        /* Scenery Overlay */
-        .scenery-overlay {
-            position: absolute;
-            bottom: 250px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-family: 'Playfair Display', serif;
-            font-size: 16px;
-            z-index: 950;
-            opacity: 0;
-            transition: opacity 1s;
-            pointer-events: none;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .scenery-overlay.show {
-            opacity: 1;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .sidebar { width: 100%; right: -100%; }
-            .info-grid { grid-template-columns: 1fr 1fr; }
-            .map-controls { right: 10px; top: auto; bottom: 280px; flex-direction: row; }
-            .scenery-overlay { bottom: 290px; font-size: 14px; padding: 8px 20px; }
-        }
-    </style>
+</style>
 </head>
+
 <body>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                Thaisa <span>Travel</span>
-            </div>
-        </div>
-        <div style="font-size: 12px; opacity: 0.8;" id="dateDisplay"></div>
-    </header>
+<header>
+<button class="menu-btn" onclick="toggleSidebar()">
+<i class="fas fa-bars"></i>
+</button>
 
-    <!-- Map -->
-    <div id="map"></div>
+<div class="logo">Thaisa <span>Travel</span></div>
+<div id="date"></div>
+</header>
 
-    <!-- Map Controls (Recuperados) -->
-    <div class="map-controls">
-        <button class="control-btn" onclick="changeZoom('in')" title="Aproximar"><i class="fas fa-plus"></i></button>
-        <button class="control-btn" onclick="changeZoom('out')" title="Afastar"><i class="fas fa-minus"></i></button>
-        <button class="control-btn" onclick="resetView()" title="Visão Global"><i class="fas fa-globe"></i></button>
-        <button class="control-btn" onclick="toggleSatellite()" title="Satélite" id="btnSatellite"><i class="fas fa-satellite"></i></button>
-        <button class="control-btn" onclick="toggleCabin()" title="Vista Cabine" id="btnCabin"><i class="fas fa-train"></i></button>
-    </div>
+<div id="map"></div>
 
-    <!-- Scenery Overlay -->
-    <div class="scenery-overlay" id="sceneryOverlay">
-        <i class="fas fa-mountain" id="sceneryIcon"></i>
-        <span id="sceneryText">Atravessando os Montes Urais</span>
-    </div>
+<div class="map-controls">
+<button class="control-btn" onclick="map.zoomIn()"><i class="fas fa-plus"></i></button>
+<button class="control-btn" onclick="map.zoomOut()"><i class="fas fa-minus"></i></button>
+</div>
 
-    <!-- Bottom Bar (Info + Controls) -->
-    <div class="bottom-bar">
-        
-        <!-- Progress Section -->
-        <div class="progress-section">
-            <div class="time-info" id="progressPercent">0%</div>
-            <div class="progress-track" id="progressBarBg">
-                <div class="progress-fill" id="progressBarFill"></div>
-            </div>
-            <div class="time-info" id="timeRemaining">--:--</div>
-        </div>
+<div class="overlay" id="overlay">Paisagem incrível!</div>
 
-        <!-- Info Grid -->
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">Origem</span>
-                <span class="info-value" id="bottomOrigin">Moscou</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Destino</span>
-                <span class="info-value" id="bottomDest">Vladivostok</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Distância</span>
-                <span class="info-value" id="bottomDist">9.289 km</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Tempo Est.</span>
-                <span class="info-value" id="bottomTime">7 dias</span>
-            </div>
-            <div class="info-item" style="justify-content: center;">
-                <div class="weather-badge">
-                    <span id="bottomWeatherIcon">❄️</span>
-                    <div style="display:flex; flex-direction:column;">
-                        <span id="bottomWeatherText" style="font-size:9px;">Neve</span>
-                        <span id="bottomTemp" style="font-weight:bold;">-15°C</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="bottom">
 
-        <!-- Speed Control Section -->
-        <div class="speed-section">
-            <i class="fas fa-tachometer-alt" style="color:var(--primary)"></i>
-            <div class="speed-display"><span id="speedValue">120</span> <span style="font-size:12px">km/h</span></div>
-            <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
-            <button class="btn-main btn-play" id="playPauseBtn" onclick="togglePlay()" style="flex: 0 0 auto; padding: 8px 20px;">
-                <i class="fas fa-play"></i>
-            </button>
-        </div>
-    </div>
+<div class="progress">
+<span id="percent">0%</span>
+<div class="track"><div class="fill" id="fill"></div></div>
+<span id="time">--</span>
+</div>
 
-    <!-- Sidebar Settings -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2 style="font-family: 'Playfair Display';">Configurações</h2>
-            <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-        </div>
+<div class="info">
+<div id="origin">Origem</div>
+<div id="dest">Destino</div>
+<div id="dist">0 km</div>
+</div>
 
-        <!-- Route Selection -->
-        <div class="control-group">
-            <div class="group-title"><i class="fas fa-map-marked-alt"></i> Escolher Rota</div>
-            <select id="routeSelect">
-                <optgroup label="🌏 Ásia">
-                    <option value="trans-siberian">Trans-Siberiana (Rússia)</option>
-                    <option value="shinkansen">Shinkansen (Japão)</option>
-                </optgroup>
-                <optgroup label="🌍 Europa">
-                    <option value="orient-express">Orient Express (Europa)</option>
-                    <option value="glacier-express">Glacier Express (Suíça)</option>
-                </optgroup>
-                <optgroup label="🌎 Américas">
-                    <option value="california-zephyr">California Zephyr (EUA)</option>
-                    <option value="canadian">The Canadian (Canadá)</option>
-                    <option value="tren-a-la-nube">Tren a las Nubes (Argentina)</option>
-                    <option value="serra-verde">Serra Verde (Brasil)</option>
-                    <option value="tren-maya">Tren Maya (México)</option>
-                </optgroup>
-            </select>
-        </div>
+<div class="speed">
+<i class="fas fa-train"></i>
+<strong><span id="speed">120</span> km/h</strong>
+<input type="range" min="40" max="800" value="120" id="slider">
+<button class="play" onclick="togglePlay()" id="play">
+<i class="fas fa-play"></i>
+</button>
+</div>
 
-        <!-- Playback Controls -->
-        <div class="control-group">
-            <div class="group-title"><i class="fas fa-cog"></i> Modo de Viagem</div>
-            <div class="play-control">
-                <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()">
-                    <i class="fas fa-infinity"></i> Contínuo
-                </button>
-            </div>
-        </div>
+</div>
 
-        <!-- Save/Load System -->
-        <div class="control-group">
-            <div class="group-title"><i class="fas fa-save"></i> Minhas Viagens</div>
-            <button class="btn-main btn-secondary" style="width:100%; margin-bottom:15px;" onclick="saveTrip()">
-                <i class="fas fa-download"></i> Salvar Progresso Atual
-            </button>
-            
-            <div class="saved-trips-list" id="savedTripsList">
-                <div style="text-align:center; opacity:0.5; font-size:12px;">Nenhuma viagem salva</div>
-            </div>
-        </div>
-    </div>
+<div class="sidebar" id="sidebar">
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script>
-        // --- Database de Rotas ---
-        const routes = {
-            'trans-siberian': {
-                name: 'Trans-Siberiana', origin: 'Moscou', destination: 'Vladivostok',
-                distance: 9289, duration: '7 dias',
-                coordinates: [[55.7558, 37.6173], [57.6261, 39.8845], [56.8389, 60.6057], [55.0084, 82.9357], [52.2978, 104.2964], [43.1056, 131.8735]],
-                weather: { icon: '❄️', text: 'Neve', temp: '-15°C' },
-                scenery: [
-                    { lat: 57, text: 'Atravessando os Montes Urais', icon: 'fa-mountain' },
-                    { lat: 55, text: 'Planície Siberiana', icon: 'fa-tree' },
-                    { lat: 52, text: 'Lago Baikal - Vista Panorâmica', icon: 'fa-water' }
-                ]
-            },
-            'shinkansen': {
-                name: 'Shinkansen', origin: 'Tóquio', destination: 'Osaka',
-                distance: 515, duration: '2h 30min',
-                coordinates: [[35.6762, 139.6503], [35.4437, 139.6380], [35.1815, 136.9066], [34.6937, 135.5023]],
-                weather: { icon: '🌸', text: 'Primavera', temp: '18°C' },
-                scenery: [{ lat: 35.5, text: 'Vista do Monte Fuji', icon: 'fa-mountain' }]
-            },
-            'orient-express': {
-                name: 'Orient Express', origin: 'Paris', destination: 'Istambul',
-                distance: 3000, duration: '3 dias',
-                coordinates: [[48.8566, 2.3522], [47.3769, 8.5417], [48.2082, 16.3738], [41.0082, 28.9784]],
-                weather: { icon: '🌤️', text: 'Nublado', temp: '12°C' },
-                scenery: [{ lat: 47, text: 'Alpes Suíços', icon: 'fa-mountain' }]
-            },
-            'glacier-express': {
-                name: 'Glacier Express', origin: 'Zermatt', destination: 'St. Moritz',
-                distance: 291, duration: '8 horas',
-                coordinates: [[46.0207, 7.7491], [46.6167, 8.3667], [46.6569, 9.8355]],
-                weather: { icon: '⛷️', text: 'Neve', temp: '-5°C' },
-                scenery: [{ lat: 46.5, text: 'Passo de Oberalp', icon: 'fa-mountain' }]
-            },
-            'california-zephyr': {
-                name: 'California Zephyr', origin: 'Chicago', destination: 'San Francisco',
-                distance: 3924, duration: '3 dias',
-                coordinates: [[41.8781, -87.6298], [39.7392, -104.9903], [40.7608, -111.8910], [37.7749, -122.4194]],
-                weather: { icon: '☀️', text: 'Sol', temp: '22°C' },
-                scenery: [{ lat: 40, text: 'Montanhas Rochosas', icon: 'fa-mountain' }]
-            },
-            'canadian': {
-                name: 'The Canadian', origin: 'Toronto', destination: 'Vancouver',
-                distance: 4466, duration: '4 dias',
-                coordinates: [[43.6532, -79.3832], [49.8951, -97.1384], [51.0447, -114.0719], [49.2827, -123.1207]],
-                weather: { icon: '🍁', text: 'Outono', temp: '8°C' },
-                scenery: [{ lat: 52, text: 'Montanhas Rochosas', icon: 'fa-mountain' }]
-            },
-            'tren-a-la-nube': {
-                name: 'Tren a las Nubes', origin: 'Salta', destination: 'San Antonio',
-                distance: 434, duration: '15 horas',
-                coordinates: [[-24.7859, -65.4117], [-24.2333, -66.3000], [-24.0833, -66.8333]],
-                weather: { icon: '☀️', text: 'Céu Limpo', temp: '5°C' },
-                scenery: [{ lat: -24.3, text: 'Puna Argentina', icon: 'fa-mountain' }]
-            },
-            'serra-verde': {
-                name: 'Serra Verde', origin: 'Curitiba', destination: 'Morretes',
-                distance: 110, duration: '3 horas',
-                coordinates: [[-25.4284, -49.2733], [-25.4500, -49.0500], [-25.5400, -48.7889]],
-                weather: { icon: '🌧️', text: 'Chuva', temp: '16°C' },
-                scenery: [{ lat: -25.45, text: 'Mata Atlântica', icon: 'fa-tree' }]
-            },
-            'tren-maya': {
-                name: 'Tren Maya', origin: 'Cancún', destination: 'Palenque',
-                distance: 1500, duration: '8 horas',
-                coordinates: [[21.1619, -86.8515], [20.9674, -89.5926], [18.5397, -92.4707]],
-                weather: { icon: '🌴', text: 'Tropical', temp: '28°C' },
-                scenery: [{ lat: 20, text: 'Selva Maya', icon: 'fa-tree' }]
-            }
-        };
+<h3>Escolher rota</h3>
+<select id="routes">
+<option value="trans">Trans-Siberiana</option>
+<option value="shinkansen">Shinkansen</option>
+<option value="orient">Orient Express</option>
+</select>
 
-        // --- Variáveis de Estado ---
-        let map, trainMarker, routeLine, satelliteLayer;
-        let currentRouteKey = 'trans-siberian';
-        let currentRoute = routes[currentRouteKey];
-        let isPlaying = false;
-        let isContinuous = false;
-        let currentSpeed = 120;
-        let currentPosition = 0; // km percorridos
-        let elapsedTime = 0;
-        let animationId;
-        let currentZoomLevel = 'route'; // 'cabin', 'route', 'satellite', 'globe'
+</div>
 
-        // --- Inicialização ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            setupListeners();
-            loadRoute('trans-siberian');
-            updateDate();
-            renderSavedTrips();
-        });
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-            
-            // Camada satélite
-            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19, attribution: '© Esri'
-            });
-        }
+<script>
+let map=L.map('map',{zoomControl:false}).setView([0,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        function setupListeners() {
-            // Seletor de Rota
-            document.getElementById('routeSelect').addEventListener('change', (e) => {
-                loadRoute(e.target.value);
-                if(window.innerWidth < 600) toggleSidebar();
-            });
+let marker=L.circleMarker([0,0],{radius:8,color:"#fff",fillColor:"#ffd700",fillOpacity:1}).addTo(map);
 
-            // Slider de Velocidade
-            const slider = document.getElementById('speedSlider');
-            slider.addEventListener('input', (e) => {
-                currentSpeed = parseInt(e.target.value);
-                document.getElementById('speedValue').textContent = currentSpeed;
-                updateTimeDisplay();
-            });
+let playing=false;
+let pos=0;
+let speed=120;
 
-            // Clique na barra de progresso
-            document.getElementById('progressBarBg').addEventListener('click', (e) => {
-                const rect = e.target.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                jumpToPosition(percent);
-            });
-        }
+slider.oninput=e=>{
+speed=e.target.value;
+document.getElementById("speed").textContent=speed;
+};
 
-        function loadRoute(key, savedData = null) {
-            currentRouteKey = key;
-            currentRoute = routes[key];
-            
-            if (savedData) {
-                currentPosition = savedData.position;
-                currentSpeed = savedData.speed;
-                document.getElementById('speedSlider').value = currentSpeed;
-                document.getElementById('speedValue').textContent = currentSpeed;
-            } else {
-                currentPosition = 0;
-                elapsedTime = 0;
-            }
+function togglePlay(){
+playing=!playing;
+document.getElementById("play").innerHTML=
+playing?'<i class="fas fa-pause"></i>':'<i class="fas fa-play"></i>';
+animate();
+}
 
-            // Atualizar UI Bottom Bar
-            document.getElementById('bottomOrigin').textContent = currentRoute.origin;
-            document.getElementById('bottomDest').textContent = currentRoute.destination;
-            document.getElementById('bottomDist').textContent = currentRoute.distance.toLocaleString('pt-BR') + ' km';
-            document.getElementById('bottomTime').textContent = currentRoute.duration;
-            document.getElementById('bottomWeatherIcon').textContent = currentRoute.weather.icon;
-            document.getElementById('bottomWeatherText').textContent = currentRoute.weather.text;
-            document.getElementById('bottomTemp').textContent = currentRoute.weather.temp;
+function animate(){
+if(!playing)return;
+pos+=speed*0.00001;
 
-            // Atualizar Mapa
-            if (routeLine) map.removeLayer(routeLine);
-            if (trainMarker) map.removeLayer(trainMarker);
+marker.setLatLng([pos*30,pos*60]);
 
-            const latlngs = currentRoute.coordinates;
-            routeLine = L.polyline(latlngs, { color: '#ffd700', weight: 4, opacity: 0.8, dashArray: '10, 10' }).addTo(map);
-            
-            trainMarker = L.circleMarker(latlngs[0], {
-                radius: 10, fillColor: '#ffd700', color: '#fff', weight: 3, fillOpacity: 1
-            }).addTo(map);
+document.getElementById("fill").style.width=(pos*100)%+"%";
+document.getElementById("percent").textContent=(pos*100).toFixed(1)+"%";
 
-            // Centralizar na rota inicialmente
-            resetView();
-            updateTrainVisuals();
-        }
+requestAnimationFrame(animate);
+}
 
-        function updateTrainVisuals() {
-            const totalDist = currentRoute.distance;
-            const percent = Math.min(currentPosition / totalDist, 1);
-            
-            const coords = currentRoute.coordinates;
-            let accumulatedDist = 0;
-            let startIdx = 0;
-            
-            for(let i=0; i<coords.length-1; i++) {
-                const d = map.distance(coords[i], coords[i+1]) / 1000; 
-                if(accumulatedDist + d >= currentPosition) {
-                    startIdx = i;
-                    break;
-                }
-                accumulatedDist += d;
-            }
+function toggleSidebar(){
+sidebar.classList.toggle("open");
+}
 
-            const p1 = coords[startIdx];
-            const p2 = coords[Math.min(startIdx+1, coords.length-1)];
-            const segmentDist = map.distance(p1, p2) / 1000;
-            const segmentProgress = (currentPosition - accumulatedDist) / segmentDist;
-            
-            const lat = p1[0] + (p2[0] - p1[0]) * Math.min(segmentProgress, 1);
-            const lng = p1[1] + (p2[1] - p1[1]) * Math.min(segmentProgress, 1);
+document.getElementById("date").textContent=
+new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+</script>
 
-            trainMarker.setLatLng([lat, lng]);
-            
-            // Atualizar barra de progresso
-            document.getElementById('progressBarFill').style.width = (percent * 100) + '%';
-            document.getElementById('progressPercent').textContent = (percent * 100).toFixed(1) + '%';
-
-            // Seguir o trem (Manter no centro)
-            if (isPlaying && currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
-                map.panTo([lat, lng], { animate: true, duration: 0.5 });
-            }
-
-            updateTimeDisplay();
-            checkScenery(lat);
-        }
-
-        function togglePlay() {
-            isPlaying = !isPlaying;
-            const btn = document.getElementById('playPauseBtn');
-            const icon = btn.querySelector('i');
-            
-            if (isPlaying) {
-                btn.classList.add('playing');
-                btn.innerHTML = '<i class="fas fa-pause"></i>';
-                animate();
-            } else {
-                btn.classList.remove('playing');
-                btn.innerHTML = '<i class="fas fa-play"></i>';
-                cancelAnimationFrame(animationId);
-            }
-        }
-
-        function toggleContinuous() {
-            isContinuous = !isContinuous;
-            const btn = document.getElementById('continuousBtn');
-            btn.style.background = isContinuous ? 'var(--primary)' : 'rgba(255,255,255,0.1)';
-            btn.style.color = isContinuous ? '#1e3c72' : '#fff';
-        }
-
-        function animate() {
-            if (!isPlaying) return;
-
-            const step = (currentSpeed / 3600) * 0.016; 
-            currentPosition += step;
-            elapsedTime += 0.016;
-
-            if (currentPosition >= currentRoute.distance) {
-                if (isContinuous) {
-                    currentPosition = 0;
-                    elapsedTime = 0;
-                } else {
-                    currentPosition = currentRoute.distance;
-                    togglePlay();
-                    alert("Viagem concluída!");
-                }
-            }
-
-            updateTrainVisuals();
-            animationId = requestAnimationFrame(animate);
-        }
-
-        function updateTimeDisplay() {
-            const remaining = currentRoute.distance - currentPosition;
-            const hours = remaining / currentSpeed;
-            const h = Math.floor(hours);
-            const m = Math.floor((hours - h) * 60);
-            document.getElementById('timeRemaining').textContent = `${h}h ${m}min restantes`;
-        }
-
-        function jumpToPosition(percent) {
-            currentPosition = currentRoute.distance * percent;
-            updateTrainVisuals();
-        }
-
-        function checkScenery(lat) {
-            if(!currentRoute.scenery) return;
-            const scenery = currentRoute.scenery.find(s => Math.abs(s.lat - lat) < 0.5);
-            const overlay = document.getElementById('sceneryOverlay');
-            
-            if (scenery && !overlay.classList.contains('show')) {
-                document.getElementById('sceneryText').textContent = scenery.text;
-                document.getElementById('sceneryIcon').className = 'fas ' + scenery.icon;
-                overlay.classList.add('show');
-                setTimeout(() => overlay.classList.remove('show'), 5000);
-            }
-        }
-
-        // --- Controles de Mapa ---
-        function changeZoom(direction) {
-            if (direction === 'in') map.zoomIn();
-            else map.zoomOut();
-            currentZoomLevel = 'route';
-        }
-
-        function resetView() {
-            if (routeLine) map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-            currentZoomLevel = 'route';
-        }
-
-        function toggleSatellite() {
-            const btn = document.getElementById('btnSatellite');
-            if (map.hasLayer(satelliteLayer)) {
-                map.removeLayer(satelliteLayer);
-                btn.classList.remove('active');
-                currentZoomLevel = 'route';
-            } else {
-                satelliteLayer.addTo(map);
-                btn.classList.add('active');
-                currentZoomLevel = 'satellite';
-            }
-        }
-
-        function toggleCabin() {
-            const btn = document.getElementById('btnCabin');
-            if (currentZoomLevel === 'cabin') {
-                resetView();
-                btn.classList.remove('active');
-            } else {
-                map.setZoom(18);
-                btn.classList.add('active');
-                currentZoomLevel = 'cabin';
-                // Simular vista da cabine
-                const overlay = document.getElementById('sceneryOverlay');
-                document.getElementById('sceneryText').textContent = 'Vista da Cabine do Maquinista';
-                document.getElementById('sceneryIcon').className = 'fas fa-train';
-                overlay.classList.add('show');
-                setTimeout(() => overlay.classList.remove('show'), 3000);
-            }
-        }
-
-        // --- Sistema de Salvar/Carregar ---
-        function saveTrip() {
-            const tripData = {
-                id: Date.now(),
-                routeKey: currentRouteKey,
-                position: currentPosition,
-                speed: currentSpeed,
-                date: new Date().toLocaleDateString('pt-BR')
-            };
-
-            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
-            savedTrips.push(tripData);
-            localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
-            
-            renderSavedTrips();
-            alert('Viagem salva com sucesso!');
-        }
-
-        function loadSavedTrip(id) {
-            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
-            const trip = savedTrips.find(t => t.id === id);
-            if (trip) {
-                loadRoute(trip.routeKey, trip);
-                toggleSidebar();
-            }
-        }
-
-        function deleteTrip(id, event) {
-            event.stopPropagation();
-            if(!confirm('Apagar esta viagem?')) return;
-            let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
-            savedTrips = savedTrips.filter(t => t.id !== id);
-            localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
-            renderSavedTrips();
-        }
-
-        function renderSavedTrips() {
-            const list = document.getElementById('savedTripsList');
-            const savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
-            list.innerHTML = '';
-            
-            if (savedTrips.length === 0) {
-                list.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:12px; padding:10px;">Nenhuma viagem salva</div>';
-                return;
-            }
-
-            savedTrips.forEach(trip => {
-                const routeName = routes[trip.routeKey].name;
-                const percent = Math.round((trip.position / routes[trip.routeKey].distance) * 100);
-                
-                const card = document.createElement('div');
-                card.className = 'trip-card';
-                card.onclick = () => loadSavedTrip(trip.id);
-                card.innerHTML = `
-                    <div class="trip-info" style="cursor:pointer; flex:1;">
-                        <strong>${routeName}</strong>
-                        <small>${percent}% concluído • ${trip.date}</small>
-                    </div>
-                    <div class="trip-actions">
-                        <button class="btn-load" onclick="loadSavedTrip(${trip.id})"><i class="fas fa-play"></i></button>
-                        <button class="btn-delete" onclick="deleteTrip(${trip.id}, event)"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function updateDate() {
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('pt-BR', options);
-        }
-    </script>
 </body>
 </html>
+```
