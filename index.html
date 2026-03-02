@@ -18,7 +18,7 @@
         :root {
             --primary: #ffd700;
             --primary-dark: #e6c200;
-            --bg-dark: rgba(20, 30, 48, 0.85);
+            --bg-dark: rgba(20, 30, 48, 0.9);
             --glass: rgba(255, 255, 255, 0.1);
         }
 
@@ -50,7 +50,7 @@
             align-items: center;
             z-index: 1000;
             background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            pointer-events: none; /* Deixa clicar no mapa através do header vazio */
+            pointer-events: none;
         }
 
         .header-content {
@@ -101,17 +101,110 @@
             z-index: 1;
         }
 
-        /* --- Bottom Info Bar (Mobile Friendly) --- */
+        /* --- Map Controls (Recuperados) --- */
+        .map-controls {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 900;
+        }
+
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #1e3c72;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .control-btn:hover {
+            background: #fff;
+            transform: scale(1.1);
+            color: var(--primary);
+        }
+
+        .control-btn.active {
+            background: var(--primary);
+            color: #1e3c72;
+        }
+
+        /* --- Bottom Bar (Info + Controls) --- */
         .bottom-bar {
             background: var(--bg-dark);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.1);
             padding: 15px;
             z-index: 1000;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 15px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Progress Bar Section */
+        .progress-section {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .time-info {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* Info Grid Section */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            align-items: center;
         }
 
         .info-item {
@@ -121,14 +214,14 @@
         }
 
         .info-label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: rgba(255,255,255,0.6);
         }
 
         .info-value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #fff;
             white-space: nowrap;
@@ -144,6 +237,44 @@
             padding: 5px 10px;
             border-radius: 20px;
             width: fit-content;
+            margin: 0 auto;
+        }
+
+        /* Speed Control Section */
+        .speed-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .speed-display {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Playfair Display', serif;
+            min-width: 80px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         /* --- Sidebar (Settings Panel) --- */
@@ -184,7 +315,6 @@
             cursor: pointer;
         }
 
-        /* Controls inside Sidebar */
         .control-group {
             background: rgba(255,255,255,0.05);
             padding: 15px;
@@ -201,57 +331,23 @@
             gap: 8px;
         }
 
-        /* Speed Slider */
-        .speed-container {
-            text-align: center;
-        }
-
-        .speed-display {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'Playfair Display', serif;
-            margin-bottom: 10px;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        /* Play/Pause Big Button */
         .play-control {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
         }
 
         .btn-main {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             transition: transform 0.2s;
         }
 
@@ -271,7 +367,16 @@
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* Saved Trips */
+        select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
         .saved-trips-list {
             display: flex;
             flex-direction: column;
@@ -306,55 +411,36 @@
         .btn-load { color: var(--primary); }
         .btn-delete { color: #ff4757; }
 
-        /* Select */
-        select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        /* Overlay for progress */
-        .progress-overlay {
+        /* Scenery Overlay */
+        .scenery-overlay {
             position: absolute;
-            bottom: 140px; /* Above bottom bar */
-            left: 20px;
-            right: 20px;
-            z-index: 900;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            z-index: 950;
+            opacity: 0;
+            transition: opacity 1s;
             pointer-events: none;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .progress-track {
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 2px;
-            position: relative;
+        .scenery-overlay.show {
+            opacity: 1;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            border-radius: 2px;
-            transition: width 0.1s linear;
-        }
-
-        /* Responsive adjustments */
+        /* Responsive */
         @media (max-width: 600px) {
-            .sidebar {
-                width: 100%;
-                right: -100%;
-            }
-            .bottom-bar {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .info-value {
-                font-size: 12px;
-            }
+            .sidebar { width: 100%; right: -100%; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .map-controls { right: 10px; top: auto; bottom: 280px; flex-direction: row; }
+            .scenery-overlay { bottom: 290px; font-size: 14px; padding: 8px 20px; }
         }
     </style>
 </head>
@@ -376,39 +462,70 @@
     <!-- Map -->
     <div id="map"></div>
 
-    <!-- Progress Bar Overlay -->
-    <div class="progress-overlay">
-        <div class="progress-track">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
+    <!-- Map Controls (Recuperados) -->
+    <div class="map-controls">
+        <button class="control-btn" onclick="changeZoom('in')" title="Aproximar"><i class="fas fa-plus"></i></button>
+        <button class="control-btn" onclick="changeZoom('out')" title="Afastar"><i class="fas fa-minus"></i></button>
+        <button class="control-btn" onclick="resetView()" title="Visão Global"><i class="fas fa-globe"></i></button>
+        <button class="control-btn" onclick="toggleSatellite()" title="Satélite" id="btnSatellite"><i class="fas fa-satellite"></i></button>
+        <button class="control-btn" onclick="toggleCabin()" title="Vista Cabine" id="btnCabin"><i class="fas fa-train"></i></button>
     </div>
 
-    <!-- Bottom Info Bar -->
+    <!-- Scenery Overlay -->
+    <div class="scenery-overlay" id="sceneryOverlay">
+        <i class="fas fa-mountain" id="sceneryIcon"></i>
+        <span id="sceneryText">Atravessando os Montes Urais</span>
+    </div>
+
+    <!-- Bottom Bar (Info + Controls) -->
     <div class="bottom-bar">
-        <div class="info-item">
-            <span class="info-label">Origem</span>
-            <span class="info-value" id="bottomOrigin">Moscou</span>
+        
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="time-info" id="progressPercent">0%</div>
+            <div class="progress-track" id="progressBarBg">
+                <div class="progress-fill" id="progressBarFill"></div>
+            </div>
+            <div class="time-info" id="timeRemaining">--:--</div>
         </div>
-        <div class="info-item">
-            <span class="info-label">Destino</span>
-            <span class="info-value" id="bottomDest">Vladivostok</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Distância</span>
-            <span class="info-value" id="bottomDist">9.289 km</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Tempo Est.</span>
-            <span class="info-value" id="bottomTime">7 dias</span>
-        </div>
-        <div class="info-item" style="justify-content: center;">
-            <div class="weather-badge">
-                <span id="bottomWeatherIcon">❄️</span>
-                <div style="display:flex; flex-direction:column;">
-                    <span id="bottomWeatherText" style="font-size:10px;">Neve</span>
-                    <span id="bottomTemp" style="font-weight:bold;">-15°C</span>
+
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Origem</span>
+                <span class="info-value" id="bottomOrigin">Moscou</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Destino</span>
+                <span class="info-value" id="bottomDest">Vladivostok</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Distância</span>
+                <span class="info-value" id="bottomDist">9.289 km</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Tempo Est.</span>
+                <span class="info-value" id="bottomTime">7 dias</span>
+            </div>
+            <div class="info-item" style="justify-content: center;">
+                <div class="weather-badge">
+                    <span id="bottomWeatherIcon">❄️</span>
+                    <div style="display:flex; flex-direction:column;">
+                        <span id="bottomWeatherText" style="font-size:9px;">Neve</span>
+                        <span id="bottomTemp" style="font-weight:bold;">-15°C</span>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Speed Control Section -->
+        <div class="speed-section">
+            <i class="fas fa-tachometer-alt" style="color:var(--primary)"></i>
+            <div class="speed-display"><span id="speedValue">120</span> <span style="font-size:12px">km/h</span></div>
+            <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
+            <button class="btn-main btn-play" id="playPauseBtn" onclick="togglePlay()" style="flex: 0 0 auto; padding: 8px 20px;">
+                <i class="fas fa-play"></i>
+            </button>
         </div>
     </div>
 
@@ -441,32 +558,13 @@
             </select>
         </div>
 
-        <!-- Speed Control -->
-        <div class="control-group">
-            <div class="group-title"><i class="fas fa-tachometer-alt"></i> Velocidade</div>
-            <div class="speed-container">
-                <div class="speed-display"><span id="speedValue">120</span> <span style="font-size:14px">km/h</span></div>
-                <input type="range" id="speedSlider" min="40" max="800" value="120" step="10">
-                <div style="display:flex; justify-content:space-between; font-size:10px; margin-top:5px; opacity:0.6;">
-                    <span>Lento (40)</span>
-                    <span>Rápido (800)</span>
-                </div>
-            </div>
-        </div>
-
         <!-- Playback Controls -->
         <div class="control-group">
-            <div class="group-title"><i class="fas fa-play-circle"></i> Controle de Viagem</div>
+            <div class="group-title"><i class="fas fa-cog"></i> Modo de Viagem</div>
             <div class="play-control">
-                <button class="btn-main btn-play" id="playPauseBtn" onclick="togglePlay()">
-                    <i class="fas fa-play"></i> Iniciar
-                </button>
                 <button class="btn-main btn-secondary" id="continuousBtn" onclick="toggleContinuous()">
-                    <i class="fas fa-infinity"></i>
+                    <i class="fas fa-infinity"></i> Contínuo
                 </button>
-            </div>
-            <div style="margin-top:15px; font-size:12px; text-align:center; opacity:0.7;">
-                Toque no mapa para mover o trem
             </div>
         </div>
 
@@ -478,7 +576,6 @@
             </button>
             
             <div class="saved-trips-list" id="savedTripsList">
-                <!-- Lista preenchida via JS -->
                 <div style="text-align:center; opacity:0.5; font-size:12px;">Nenhuma viagem salva</div>
             </div>
         </div>
@@ -494,67 +591,82 @@
                 name: 'Trans-Siberiana', origin: 'Moscou', destination: 'Vladivostok',
                 distance: 9289, duration: '7 dias',
                 coordinates: [[55.7558, 37.6173], [57.6261, 39.8845], [56.8389, 60.6057], [55.0084, 82.9357], [52.2978, 104.2964], [43.1056, 131.8735]],
-                weather: { icon: '❄️', text: 'Neve', temp: '-15°C' }
+                weather: { icon: '❄️', text: 'Neve', temp: '-15°C' },
+                scenery: [
+                    { lat: 57, text: 'Atravessando os Montes Urais', icon: 'fa-mountain' },
+                    { lat: 55, text: 'Planície Siberiana', icon: 'fa-tree' },
+                    { lat: 52, text: 'Lago Baikal - Vista Panorâmica', icon: 'fa-water' }
+                ]
             },
             'shinkansen': {
                 name: 'Shinkansen', origin: 'Tóquio', destination: 'Osaka',
                 distance: 515, duration: '2h 30min',
                 coordinates: [[35.6762, 139.6503], [35.4437, 139.6380], [35.1815, 136.9066], [34.6937, 135.5023]],
-                weather: { icon: '🌸', text: 'Primavera', temp: '18°C' }
+                weather: { icon: '🌸', text: 'Primavera', temp: '18°C' },
+                scenery: [{ lat: 35.5, text: 'Vista do Monte Fuji', icon: 'fa-mountain' }]
             },
             'orient-express': {
                 name: 'Orient Express', origin: 'Paris', destination: 'Istambul',
                 distance: 3000, duration: '3 dias',
                 coordinates: [[48.8566, 2.3522], [47.3769, 8.5417], [48.2082, 16.3738], [41.0082, 28.9784]],
-                weather: { icon: '🌤️', text: 'Nublado', temp: '12°C' }
+                weather: { icon: '🌤️', text: 'Nublado', temp: '12°C' },
+                scenery: [{ lat: 47, text: 'Alpes Suíços', icon: 'fa-mountain' }]
             },
             'glacier-express': {
                 name: 'Glacier Express', origin: 'Zermatt', destination: 'St. Moritz',
                 distance: 291, duration: '8 horas',
                 coordinates: [[46.0207, 7.7491], [46.6167, 8.3667], [46.6569, 9.8355]],
-                weather: { icon: '⛷️', text: 'Neve', temp: '-5°C' }
+                weather: { icon: '⛷️', text: 'Neve', temp: '-5°C' },
+                scenery: [{ lat: 46.5, text: 'Passo de Oberalp', icon: 'fa-mountain' }]
             },
             'california-zephyr': {
                 name: 'California Zephyr', origin: 'Chicago', destination: 'San Francisco',
                 distance: 3924, duration: '3 dias',
                 coordinates: [[41.8781, -87.6298], [39.7392, -104.9903], [40.7608, -111.8910], [37.7749, -122.4194]],
-                weather: { icon: '☀️', text: 'Sol', temp: '22°C' }
+                weather: { icon: '☀️', text: 'Sol', temp: '22°C' },
+                scenery: [{ lat: 40, text: 'Montanhas Rochosas', icon: 'fa-mountain' }]
             },
             'canadian': {
                 name: 'The Canadian', origin: 'Toronto', destination: 'Vancouver',
                 distance: 4466, duration: '4 dias',
                 coordinates: [[43.6532, -79.3832], [49.8951, -97.1384], [51.0447, -114.0719], [49.2827, -123.1207]],
-                weather: { icon: '🍁', text: 'Outono', temp: '8°C' }
+                weather: { icon: '🍁', text: 'Outono', temp: '8°C' },
+                scenery: [{ lat: 52, text: 'Montanhas Rochosas', icon: 'fa-mountain' }]
             },
             'tren-a-la-nube': {
                 name: 'Tren a las Nubes', origin: 'Salta', destination: 'San Antonio',
                 distance: 434, duration: '15 horas',
                 coordinates: [[-24.7859, -65.4117], [-24.2333, -66.3000], [-24.0833, -66.8333]],
-                weather: { icon: '☀️', text: 'Céu Limpo', temp: '5°C' }
+                weather: { icon: '☀️', text: 'Céu Limpo', temp: '5°C' },
+                scenery: [{ lat: -24.3, text: 'Puna Argentina', icon: 'fa-mountain' }]
             },
             'serra-verde': {
                 name: 'Serra Verde', origin: 'Curitiba', destination: 'Morretes',
                 distance: 110, duration: '3 horas',
                 coordinates: [[-25.4284, -49.2733], [-25.4500, -49.0500], [-25.5400, -48.7889]],
-                weather: { icon: '🌧️', text: 'Chuva', temp: '16°C' }
+                weather: { icon: '🌧️', text: 'Chuva', temp: '16°C' },
+                scenery: [{ lat: -25.45, text: 'Mata Atlântica', icon: 'fa-tree' }]
             },
             'tren-maya': {
                 name: 'Tren Maya', origin: 'Cancún', destination: 'Palenque',
                 distance: 1500, duration: '8 horas',
                 coordinates: [[21.1619, -86.8515], [20.9674, -89.5926], [18.5397, -92.4707]],
-                weather: { icon: '🌴', text: 'Tropical', temp: '28°C' }
+                weather: { icon: '🌴', text: 'Tropical', temp: '28°C' },
+                scenery: [{ lat: 20, text: 'Selva Maya', icon: 'fa-tree' }]
             }
         };
 
         // --- Variáveis de Estado ---
-        let map, trainMarker, routeLine;
+        let map, trainMarker, routeLine, satelliteLayer;
         let currentRouteKey = 'trans-siberian';
         let currentRoute = routes[currentRouteKey];
         let isPlaying = false;
         let isContinuous = false;
         let currentSpeed = 120;
         let currentPosition = 0; // km percorridos
+        let elapsedTime = 0;
         let animationId;
+        let currentZoomLevel = 'route'; // 'cabin', 'route', 'satellite', 'globe'
 
         // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -569,15 +681,16 @@
             map = L.map('map', { zoomControl: false, attributionControl: false }).setView([0, 0], 2);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
             
-            // Controles de Zoom manuais no mapa
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            // Camada satélite
+            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19, attribution: '© Esri'
+            });
         }
 
         function setupListeners() {
             // Seletor de Rota
             document.getElementById('routeSelect').addEventListener('change', (e) => {
                 loadRoute(e.target.value);
-                // Fecha o menu no mobile após selecionar
                 if(window.innerWidth < 600) toggleSidebar();
             });
 
@@ -586,16 +699,14 @@
             slider.addEventListener('input', (e) => {
                 currentSpeed = parseInt(e.target.value);
                 document.getElementById('speedValue').textContent = currentSpeed;
+                updateTimeDisplay();
             });
 
-            // Clique no mapa para mover o trem
-            map.on('click', (e) => {
-                if(!currentRoute) return;
-                // Lógica simplificada: move o trem para o ponto mais próximo da linha
-                const point = e.latlng;
-                // Apenas para efeito visual neste demo, move o marcador para onde clicou se estiver perto da rota
-                // Em um app real, faríamos projeção na linha poligonal
-                trainMarker.setLatLng(point);
+            // Clique na barra de progresso
+            document.getElementById('progressBarBg').addEventListener('click', (e) => {
+                const rect = e.target.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                jumpToPosition(percent);
             });
         }
 
@@ -603,7 +714,6 @@
             currentRouteKey = key;
             currentRoute = routes[key];
             
-            // Se houver dados salvos, usa eles
             if (savedData) {
                 currentPosition = savedData.position;
                 currentSpeed = savedData.speed;
@@ -611,6 +721,7 @@
                 document.getElementById('speedValue').textContent = currentSpeed;
             } else {
                 currentPosition = 0;
+                elapsedTime = 0;
             }
 
             // Atualizar UI Bottom Bar
@@ -630,27 +741,23 @@
             routeLine = L.polyline(latlngs, { color: '#ffd700', weight: 4, opacity: 0.8, dashArray: '10, 10' }).addTo(map);
             
             trainMarker = L.circleMarker(latlngs[0], {
-                radius: 8, fillColor: '#ffd700', color: '#fff', weight: 2, fillOpacity: 1
+                radius: 10, fillColor: '#ffd700', color: '#fff', weight: 3, fillOpacity: 1
             }).addTo(map);
 
-            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+            // Centralizar na rota inicialmente
+            resetView();
             updateTrainVisuals();
         }
 
         function updateTrainVisuals() {
-            // Interpolação simples para encontrar a lat/lng baseada na % da distância
             const totalDist = currentRoute.distance;
             const percent = Math.min(currentPosition / totalDist, 1);
             
-            // Encontrar segmento atual
             const coords = currentRoute.coordinates;
             let accumulatedDist = 0;
             let startIdx = 0;
             
-            // Cálculo aproximado de distância entre pontos para interpolação
-            // (Nota: Em produção usaria geolib para distância real entre pontos)
             for(let i=0; i<coords.length-1; i++) {
-                // Estimativa grosseira de distância do segmento
                 const d = map.distance(coords[i], coords[i+1]) / 1000; 
                 if(accumulatedDist + d >= currentPosition) {
                     startIdx = i;
@@ -661,8 +768,6 @@
 
             const p1 = coords[startIdx];
             const p2 = coords[Math.min(startIdx+1, coords.length-1)];
-            
-            // Interpolar posição dentro do segmento
             const segmentDist = map.distance(p1, p2) / 1000;
             const segmentProgress = (currentPosition - accumulatedDist) / segmentDist;
             
@@ -672,12 +777,16 @@
             trainMarker.setLatLng([lat, lng]);
             
             // Atualizar barra de progresso
-            document.getElementById('progressFill').style.width = (percent * 100) + '%';
+            document.getElementById('progressBarFill').style.width = (percent * 100) + '%';
+            document.getElementById('progressPercent').textContent = (percent * 100).toFixed(1) + '%';
 
-            // Atualizar tempo restante estimado
-            const remainingKm = totalDist - currentPosition;
-            const hoursLeft = remainingKm / currentSpeed;
-            // Exibir no console ou num tooltip se desejar
+            // Seguir o trem (Manter no centro)
+            if (isPlaying && currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
+                map.panTo([lat, lng], { animate: true, duration: 0.5 });
+            }
+
+            updateTimeDisplay();
+            checkScenery(lat);
         }
 
         function togglePlay() {
@@ -687,11 +796,11 @@
             
             if (isPlaying) {
                 btn.classList.add('playing');
-                btn.innerHTML = '<i class="fas fa-pause"></i> Pausar';
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
                 animate();
             } else {
                 btn.classList.remove('playing');
-                btn.innerHTML = '<i class="fas fa-play"></i> Continuar';
+                btn.innerHTML = '<i class="fas fa-play"></i>';
                 cancelAnimationFrame(animationId);
             }
         }
@@ -706,24 +815,92 @@
         function animate() {
             if (!isPlaying) return;
 
-            // Distância percorrida neste frame (km)
-            // Speed (km/h) / 3600 (s) * 0.016 (ms do frame approx)
             const step = (currentSpeed / 3600) * 0.016; 
-            
             currentPosition += step;
+            elapsedTime += 0.016;
 
             if (currentPosition >= currentRoute.distance) {
                 if (isContinuous) {
                     currentPosition = 0;
+                    elapsedTime = 0;
                 } else {
                     currentPosition = currentRoute.distance;
-                    togglePlay(); // Para no fim
-                    alert("Viagem concluída! Que tal salvar ou escolher outra rota?");
+                    togglePlay();
+                    alert("Viagem concluída!");
                 }
             }
 
             updateTrainVisuals();
             animationId = requestAnimationFrame(animate);
+        }
+
+        function updateTimeDisplay() {
+            const remaining = currentRoute.distance - currentPosition;
+            const hours = remaining / currentSpeed;
+            const h = Math.floor(hours);
+            const m = Math.floor((hours - h) * 60);
+            document.getElementById('timeRemaining').textContent = `${h}h ${m}min restantes`;
+        }
+
+        function jumpToPosition(percent) {
+            currentPosition = currentRoute.distance * percent;
+            updateTrainVisuals();
+        }
+
+        function checkScenery(lat) {
+            if(!currentRoute.scenery) return;
+            const scenery = currentRoute.scenery.find(s => Math.abs(s.lat - lat) < 0.5);
+            const overlay = document.getElementById('sceneryOverlay');
+            
+            if (scenery && !overlay.classList.contains('show')) {
+                document.getElementById('sceneryText').textContent = scenery.text;
+                document.getElementById('sceneryIcon').className = 'fas ' + scenery.icon;
+                overlay.classList.add('show');
+                setTimeout(() => overlay.classList.remove('show'), 5000);
+            }
+        }
+
+        // --- Controles de Mapa ---
+        function changeZoom(direction) {
+            if (direction === 'in') map.zoomIn();
+            else map.zoomOut();
+            currentZoomLevel = 'route';
+        }
+
+        function resetView() {
+            if (routeLine) map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+            currentZoomLevel = 'route';
+        }
+
+        function toggleSatellite() {
+            const btn = document.getElementById('btnSatellite');
+            if (map.hasLayer(satelliteLayer)) {
+                map.removeLayer(satelliteLayer);
+                btn.classList.remove('active');
+                currentZoomLevel = 'route';
+            } else {
+                satelliteLayer.addTo(map);
+                btn.classList.add('active');
+                currentZoomLevel = 'satellite';
+            }
+        }
+
+        function toggleCabin() {
+            const btn = document.getElementById('btnCabin');
+            if (currentZoomLevel === 'cabin') {
+                resetView();
+                btn.classList.remove('active');
+            } else {
+                map.setZoom(18);
+                btn.classList.add('active');
+                currentZoomLevel = 'cabin';
+                // Simular vista da cabine
+                const overlay = document.getElementById('sceneryOverlay');
+                document.getElementById('sceneryText').textContent = 'Vista da Cabine do Maquinista';
+                document.getElementById('sceneryIcon').className = 'fas fa-train';
+                overlay.classList.add('show');
+                setTimeout(() => overlay.classList.remove('show'), 3000);
+            }
         }
 
         // --- Sistema de Salvar/Carregar ---
@@ -747,17 +924,15 @@
         function loadSavedTrip(id) {
             let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
             const trip = savedTrips.find(t => t.id === id);
-            
             if (trip) {
                 loadRoute(trip.routeKey, trip);
-                toggleSidebar(); // Fecha menu
+                toggleSidebar();
             }
         }
 
         function deleteTrip(id, event) {
             event.stopPropagation();
-            if(!confirm('Tem certeza que deseja apagar esta viagem salva?')) return;
-
+            if(!confirm('Apagar esta viagem?')) return;
             let savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
             savedTrips = savedTrips.filter(t => t.id !== id);
             localStorage.setItem('thaisaTrips', JSON.stringify(savedTrips));
@@ -767,7 +942,6 @@
         function renderSavedTrips() {
             const list = document.getElementById('savedTripsList');
             const savedTrips = JSON.parse(localStorage.getItem('thaisaTrips') || '[]');
-            
             list.innerHTML = '';
             
             if (savedTrips.length === 0) {
