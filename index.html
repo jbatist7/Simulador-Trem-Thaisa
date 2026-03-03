@@ -99,7 +99,7 @@
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: var(--bg-dark); backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 15px 20px 15px; /* Padding bottom extra para iPhone */
+            padding: 10px 15px 20px 15px;
             z-index: 1000;
             display: flex; flex-direction: column; gap: 10px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
@@ -128,7 +128,7 @@
             height: 18px; width: 18px; border: none; border-radius: 50%; background: #fff; cursor: pointer;
         }
 
-        /* Info Grid (Default Notebook) */
+        /* Info Grid */
         .info-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
         }
@@ -184,7 +184,7 @@
         }
         .scenery-overlay.show { opacity: 1; }
 
-        /* --- RESPONSIVIDADE MOBILE (AJUSTES FINOS) --- */
+        /* --- RESPONSIVIDADE MOBILE (AJUSTE FINAL 75%) --- */
         @media (max-width: 600px) {
             .sidebar { width: 85%; }
             .logo { font-size: 13px; max-width: 200px; }
@@ -192,16 +192,15 @@
             .desktop-bottom-controls { display: none !important; }
             .mobile-speed-control { display: flex; }
             
-            /* INFO GRID - MUDANÇA PARA VISIBILIDADE */
             .info-grid {
-                display: grid; /* Grid fixo, não scroll */
-                grid-template-columns: 1fr 1fr; /* 2 colunas */
+                display: grid;
+                grid-template-columns: 1fr 1fr;
                 gap: 10px 15px;
                 padding-bottom: 5px;
             }
             .info-item { 
                 display: flex; 
-                flex-direction: row; /* Labels e valores lado a lado para economizar altura */
+                flex-direction: row;
                 justify-content: space-between; 
                 align-items: center; 
                 background: rgba(255,255,255,0.05);
@@ -210,17 +209,21 @@
             }
             .info-label { margin-bottom: 0; font-size: 10px; color: rgba(255,255,255,0.6); }
             .info-value { font-size: 11px; }
-            
-            /* Ajuste Weather Badge */
             .weather-badge { padding: 4px 8px; width: 100%; justify-content: center; }
 
-            .map-controls { right: 10px; bottom: 38vh; top: auto; transform: none; gap: 8px; }
-            .control-btn { width: 40px; height: 40px; font-size: 16px; }
+            /* AJUSTE CHAVE: Posicionamento a 75% de altura */
+            .map-controls { 
+                right: 10px; 
+                top: 75%; /* O topo da coluna começa em 75% da tela */
+                transform: translateY(-50%); /* Centraliza a coluna nesse ponto */
+                gap: 8px; 
+            }
+            .control-btn { width: 45px; height: 45px; font-size: 18px; } /* Botões levemente maiores para toque */
             
             input[type=range].progress-slider::-webkit-slider-thumb { height: 22px; width: 22px; margin-top: -8px; }
             input[type=range].progress-slider::-webkit-slider-runnable-track { height: 8px; }
             
-            .scenery-overlay { bottom: 40%; font-size: 12px; width: 80%; }
+            .scenery-overlay { bottom: 45%; font-size: 12px; width: 80%; }
         }
 
         @media (min-width: 601px) {
@@ -247,7 +250,7 @@
     <!-- MAPA -->
     <div id="map"></div>
 
-    <!-- Map Controls -->
+    <!-- Map Controls (Posição Ajustada) -->
     <div class="map-controls">
         <button class="control-btn" onclick="changeZoom('in')" title="Aproximar"><i class="fas fa-plus"></i></button>
         <button class="control-btn" onclick="changeZoom('out')" title="Afastar"><i class="fas fa-minus"></i></button>
@@ -618,23 +621,9 @@
 
             document.getElementById('progressPercent').textContent = Math.round(percent) + '%';
 
-            // --- CORREÇÃO DA VIBRAÇÃO E CENTRALIZAÇÃO ---
+            // Centralização
             if (isPlaying && currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
-                let targetLat = lat;
-                let targetLng = lng;
-
-                // Se for mobile, calculamos um ponto acima do trem para a câmera
-                if (window.innerWidth < 600) {
-                    const currentPoint = map.latLngToContainerPoint([lat, lng]);
-                    // Sobe 140px (ajuste fino baseado na altura da barra)
-                    const offsetPoint = L.point(currentPoint.x, currentPoint.y - 140);
-                    const offsetLatLng = map.containerPointToLatLng(offsetPoint);
-                    targetLat = offsetLatLng.lat;
-                    targetLng = offsetLatLng.lng;
-                }
-
-                // Pan direto para o ponto calculado (evita o loop de centralizar + deslocar)
-                map.panTo([targetLat, targetLng], { animate: true, duration: 0.2 });
+                map.panTo([lat, lng], { animate: true, duration: 0.1 });
             }
 
             updateTimeDisplay();
@@ -644,8 +633,18 @@
         function togglePlay() {
             isPlaying = !isPlaying;
             updatePlayButtonUI();
-            if (isPlaying) animate();
-            else cancelAnimationFrame(animationId);
+            
+            if (isPlaying) {
+                // AO RETOMAR: Força o centro imediatamente antes de começar a mover
+                // Isso garante que o trem não comece a se mover "perdido"
+                if (trainMarker) {
+                    const latlng = trainMarker.getLatLng();
+                    map.panTo(latlng, { animate: true, duration: 0.5 });
+                }
+                animate();
+            } else {
+                cancelAnimationFrame(animationId);
+            }
         }
 
         function updatePlayButtonUI() {
