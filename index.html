@@ -184,7 +184,7 @@
         }
         .scenery-overlay.show { opacity: 1; }
 
-        /* --- RESPONSIVIDADE MOBILE (AJUSTE FINAL 75%) --- */
+        /* --- RESPONSIVIDADE MOBILE (AJUSTE FINAL POSIÇÃO) --- */
         @media (max-width: 600px) {
             .sidebar { width: 85%; }
             .logo { font-size: 13px; max-width: 200px; }
@@ -211,14 +211,16 @@
             .info-value { font-size: 11px; }
             .weather-badge { padding: 4px 8px; width: 100%; justify-content: center; }
 
-            /* AJUSTE CHAVE: Posicionamento a 75% de altura */
+            /* CORREÇÃO: Ancorar coluna de baixo para cima para evitar sobreposição */
             .map-controls { 
                 right: 10px; 
-                top: 75%; /* O topo da coluna começa em 75% da tela */
-                transform: translateY(-50%); /* Centraliza a coluna nesse ponto */
+                bottom: 40vh; /* O fundo da coluna fica a 40% da altura da tela */
+                top: auto; /* Cancela o posicionamento pelo topo */
+                transform: none; /* Cancela a transformação de centro */
+                align-items: flex-end; /* Alinha os botões para cima da âncora bottom */
                 gap: 8px; 
             }
-            .control-btn { width: 45px; height: 45px; font-size: 18px; } /* Botões levemente maiores para toque */
+            .control-btn { width: 45px; height: 45px; font-size: 18px; }
             
             input[type=range].progress-slider::-webkit-slider-thumb { height: 22px; width: 22px; margin-top: -8px; }
             input[type=range].progress-slider::-webkit-slider-runnable-track { height: 8px; }
@@ -250,7 +252,7 @@
     <!-- MAPA -->
     <div id="map"></div>
 
-    <!-- Map Controls (Posição Ajustada) -->
+    <!-- Map Controls (Posição Ajustada para Mobile) -->
     <div class="map-controls">
         <button class="control-btn" onclick="changeZoom('in')" title="Aproximar"><i class="fas fa-plus"></i></button>
         <button class="control-btn" onclick="changeZoom('out')" title="Afastar"><i class="fas fa-minus"></i></button>
@@ -636,7 +638,6 @@
             
             if (isPlaying) {
                 // AO RETOMAR: Força o centro imediatamente antes de começar a mover
-                // Isso garante que o trem não comece a se mover "perdido"
                 if (trainMarker) {
                     const latlng = trainMarker.getLatLng();
                     map.panTo(latlng, { animate: true, duration: 0.5 });
