@@ -625,7 +625,9 @@
 
             // Centralização
             if (isPlaying && currentZoomLevel !== 'globe' && currentZoomLevel !== 'satellite') {
-                map.panTo([lat, lng], { animate: true, duration: 0.1 });
+            // 'animate: false' faz o mapa pular instantaneamente para o ponto,
+            // garantindo que ele nunca saia do centro da tela.
+            map.panTo([lat, lng], { animate: false });
             }
 
             updateTimeDisplay();
